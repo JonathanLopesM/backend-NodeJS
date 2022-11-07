@@ -90,4 +90,9 @@ mongoose_1.default.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.evpyhzo.m
     .then(() => {
     app.listen(3333);
     console.log("Success Conected database");
-}).catch((err) => console.log(err));
+
+}).catch((err) => {
+    console.log(dbUser, dbPass)
+    console.log('Erro especificado a baixo')
+    console.log(err)
+});
