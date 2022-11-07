@@ -101,13 +101,18 @@ app.post('/reset-password/:id/:token', ResetPass)
 // db credentials
 const dbUser = process.env.DB_USER
 const dbPass = process.env.DB_PASS
+console.log('1' ,dbUser, dbPass)
 
 mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.evpyhzo.mongodb.net/?retryWrites=true&w=majority`)
 .then(()=> {
 app.listen(3333)
 
   console.log("Success Conected database")
-}).catch((err) => console.log(err))
+}).catch((err) => {
+  console.log('2', dbUser, dbPass)
+  console.log('Erro especificado a baixo')
+  console.log(err)
+})
 
 
 

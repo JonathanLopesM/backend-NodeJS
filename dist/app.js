@@ -86,6 +86,7 @@ app.post('/reset-password/:id/:token', ResetPass_1.default);
 // db credentials
 const dbUser = process.env.DB_USER;
 const dbPass = process.env.DB_PASS;
+console.log(dbUser, dbPass)
 mongoose_1.default.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.evpyhzo.mongodb.net/?retryWrites=true&w=majority`)
     .then(() => {
     app.listen(3333);
