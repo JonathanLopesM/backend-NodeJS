@@ -10,9 +10,9 @@ export default async function PasswordGet (req, res) {
   }
   const secret = process.env.SECRET + oldUser.password
   try {
-    const verify = jwt.verify(token, secret)
+    const verify:any = jwt.verify(token, secret)
 
-    res.render("index", { email:verify.email})
+    res.render("index", { email: verify.email  })
   } catch (error) {
     console.log(error)
     res.send("Not verified")
