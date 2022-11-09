@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redefinir Senha</title>
+  <style>
+    .button:hover{
+      background-color: #6d7bff;
+    }
+  </style>
+</head>
+<body>
+  <div style="display:flex; justify-content:center; flex-direction:column; margin:auto; margin-top:100px; align-items:center;">
+    <h1 style="font-size:6rem; font-weight: bold; color:#07127B; ">Finpath</h1>
+    <h2>Redefinir a Senha para o email: </h2> 
+    <h2><%= email %></h2>
+    <form style="display:flex; flex-direction: column;  width:100%; max-width: 290px;"  action="" method="post">
+
+      <div slyle="display:flex; box-sizing: border-box; border-style:solid; border:5px; border-color:#e5e7eb; border-radius:0.375rem; width:288px; height:60px; padding-left:1rem; padding: 1rem;">
+        <label style="display: flex;  margin-top: 0.25rem; line-height: 1rem; flex-direction: column;" for="password">Senha <br>
+          <input style="font-size: 20px; width:288px; height:40px; border-radius: 0.5rem;" type="password" name="password" id="password" ><br>
+        </label>
+      </div>
+      
+      <label for="confirm-password">Confirme a senha<br>
+      <input style="font-size: 20px; width:288px; height:40px; border-radius: 0.5rem;" type="password" name="confirm-password" id="confirm-password" ><br>
+    </label> 
+    <button class="button" style="cursor:pointer; margin-top: 2rem; font-size: large; background-color: #07127B; color:white; border-radius:10px; padding-left: 15px; padding-right: 15px; padding-top: 10px; padding-bottom: 10px;" type="submit" value="submit">Confirmar</button>
+
+    </form>
+  </div>
+  
+</body>
+</html>

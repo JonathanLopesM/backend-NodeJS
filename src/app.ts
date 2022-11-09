@@ -17,6 +17,7 @@ import RecoverPassword from './controllers/RecoverPassword'
 import ResetPass from './controllers/ResetPass'
 import ResetPassword from './controllers/ResetPassword'
 
+const port = process.env.PORT || 3333 ;
 
 const app = express()
 
@@ -105,7 +106,7 @@ console.log('1' ,dbUser, dbPass)
 
 mongoose.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.evpyhzo.mongodb.net/?retryWrites=true&w=majority`)
 .then(()=> {
-app.listen(3333)
+app.listen(port)
 
   console.log("Success Conected database")
 }).catch((err) => {
