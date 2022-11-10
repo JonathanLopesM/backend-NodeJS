@@ -19,7 +19,7 @@ export default async function RecoverPassword(req, res) {
   const token = jwt.sign({ email: user.email, id: user.id }, secret, {
     expiresIn: "5m"
   })
-  const link = process.env.URL+`/reset-password/${user.id}/${token}`
+  const link =`${process.env.URL}/reset-password/${user.id}/${token}`
 
   console.log(link)
   //membros@finpath.com.br
