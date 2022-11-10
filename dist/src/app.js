@@ -25,6 +25,7 @@ const RegisterUser_1 = __importDefault(require("./controllers/RegisterUser"));
 const RecoverPassword_1 = __importDefault(require("./controllers/RecoverPassword"));
 const ResetPass_1 = __importDefault(require("./controllers/ResetPass"));
 const ResetPassword_1 = __importDefault(require("./controllers/ResetPassword"));
+const port = process.env.PORT || 3333;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
@@ -89,7 +90,7 @@ const dbPass = process.env.DB_PASS;
 console.log('1', dbUser, dbPass);
 mongoose_1.default.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.evpyhzo.mongodb.net/?retryWrites=true&w=majority`)
     .then(() => {
-    app.listen(3333);
+    app.listen(port);
     console.log("Success Conected database");
 }).catch((err) => {
     console.log('2', dbUser, dbPass);
