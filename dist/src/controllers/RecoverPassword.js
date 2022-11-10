@@ -30,7 +30,7 @@ function RecoverPassword(req, res) {
         const token = jsonwebtoken_1.default.sign({ email: user.email, id: user.id }, secret, {
             expiresIn: "5m"
         });
-        const link = process.env.URL + `/reset-password/${user.id}/${token}`;
+        const link = `${process.env.URL}/reset-password/${user.id}/${token}`;
         console.log(link);
         //membros@finpath.com.br
         var transport = nodemailer_1.default.createTransport({
