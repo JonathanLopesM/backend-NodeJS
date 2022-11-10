@@ -37,7 +37,7 @@ export default async function LoginUser (req, res ) {
     email: user.email,
 
   }
-  console.log(userReturn)
+  //console.log(userReturn)
   
   try{
 

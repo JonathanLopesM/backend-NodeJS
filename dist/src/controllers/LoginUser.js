@@ -42,7 +42,7 @@ function LoginUser(req, res) {
             name: Name,
             email: user.email,
         };
-        console.log(userReturn);
+        //console.log(userReturn)
         try {
             const secret = process.env.SECRET;
             const token = jsonwebtoken_1.default.sign({

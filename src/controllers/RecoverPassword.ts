@@ -21,7 +21,7 @@ export default async function RecoverPassword(req, res) {
   })
   const link =`${process.env.URL}reset-password/${user.id}/${token}`
 
-  console.log(link)
+  //console.log(link)
   //membros@finpath.com.br
 
   var transport = nodemailer.createTransport({
