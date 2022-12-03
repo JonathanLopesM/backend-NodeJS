@@ -16,10 +16,13 @@ function checkToken(req, res, next) {
     // console.log(token)
     // console.log(secret)
 
-    jwt.verify(token, secret)
-    next()
-
-
+    jwt.verify(token, secret, (err, decoded) => {
+      if(err) return res.status(401).send({ error: 'Token invalid'});
+      // console.log(decoded)
+      req.userId = decoded.id;
+      
+      return next()
+    })
 
   } catch (error) {
     res.status(400).json({ msg: "Token Inválido !"})

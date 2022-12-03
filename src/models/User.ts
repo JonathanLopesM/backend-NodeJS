@@ -4,6 +4,7 @@ interface IUser {
   name:string;
   email:string;
   password:string;
+  statement: Array<Object>;
 }
 const userSchema = new Schema({
   name: {type: String},
@@ -16,10 +17,18 @@ const userSchema = new Schema({
   passwordResetExpires: {
     type: Date,
     select: false
-  }
+  },
+  statement: [
+    {
+      description: String,
+      amount: Number,
+      type: Schema.Types.ObjectId,
+      ref:"Amounts"
+    }
+  ]
 })
 
-export default mongoose.model<IUser>('User', userSchema )
+export default mongoose.model<IUser>('Users', userSchema, 'users' )
 
 
 

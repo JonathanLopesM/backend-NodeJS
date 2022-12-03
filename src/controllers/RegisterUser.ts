@@ -32,7 +32,8 @@ export default async function RegisterUser ( req, res ) {
   const user = new User({
     name,
     email,
-    password:passwordHash
+    password:passwordHash,
+    statement: []
   })
   try {
 
