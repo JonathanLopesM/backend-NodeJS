@@ -13,16 +13,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const User_1 = __importDefault(require("../models/User"));
+const Amounts_1 = __importDefault(require("../models/Amounts"));
 function PrivateRoute(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const id = req.params.id;
+        const { TotalFounds, TotalDebits, TotalCredits } = req;
         //check if user exists
-        const user = yield User_1.default.findById(id, '-password');
-        console.log(user);
+        const user = yield User_1.default.findById(id, '-password').populate(['statement']);
+        console.log(user.populate('statement'));
         if (!user) {
             return res.status(404).json({ message: 'Usuário não encontrado' });
         }
-        res.status(200).json({ user });
+        const customers = yield Amounts_1.default.find({ user: id });
+        yield Promise.all(customers.map((customer) => __awaiter(this, void 0, void 0, function* () {
+            const userCustomer = new Amounts_1.default(Object.assign(Object.assign({}, customer), { user: user._id }));
+            yield userCustomer.save();
+            user.statement.push(userCustomer);
+        })));
+        // console.log(userId)
+        //  await user.statement.push(customers)
+        res.status(200).json({ user, TotalFounds, TotalDebits, TotalCredits });
     });
 }
 exports.default = PrivateRoute;

@@ -16,8 +16,13 @@ function checkToken(req, res, next) {
         const secret = process.env.SECRET;
         // console.log(token)
         // console.log(secret)
-        jsonwebtoken_1.default.verify(token, secret);
-        next();
+        jsonwebtoken_1.default.verify(token, secret, (err, decoded) => {
+            if (err)
+                return res.status(401).send({ error: 'Token invalid' });
+            // console.log(decoded)
+            req.userId = decoded.id;
+            return next();
+        });
     }
     catch (error) {
         res.status(400).json({ msg: "Token Inválido !" });

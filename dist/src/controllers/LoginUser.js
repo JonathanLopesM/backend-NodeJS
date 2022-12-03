@@ -18,6 +18,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 function LoginUser(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { email, password } = req.body;
+        // Teste com 0
+        const { TotalFounds, TotalDebits, TotalCredits, greet } = req;
         //validations
         if (!email) {
             return res.status(422).json({ message: 'O Email é obrigatório' });
@@ -48,7 +50,7 @@ function LoginUser(req, res) {
             const token = jsonwebtoken_1.default.sign({
                 id: user._id,
             }, secret);
-            res.status(200).json({ msg: 'Autenticação com sucesso', userReturn, token });
+            res.status(200).json({ msg: 'Autenticação com sucesso', userReturn, token, TotalFounds, TotalDebits, TotalCredits, greet });
         }
         catch (error) {
             res.status(500).json({

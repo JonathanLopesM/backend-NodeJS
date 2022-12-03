@@ -12,41 +12,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const User_1 = __importDefault(require("../models/User"));
-const bcrypt_1 = __importDefault(require("bcrypt"));
-//controller
-function RegisterUser(req, res) {
+const Wallet_1 = __importDefault(require("@models/Wallet"));
+function CreateWallet(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { name, email, password, confirmpassword } = req.body;
-        if (!name) {
+        const { value, description, category, date } = req.body;
+        if (!value) {
             return res.status(422).json({ message: 'O nome é obrigatório' });
         }
-        if (!email) {
-            return res.status(422).json({ message: 'O Email é obrigatório' });
+        const walletExists = yield Wallet_1.default.findOne({ value: value });
+        if (!walletExists) {
+            const wallet = new Wallet_1.default({
+                value,
+                description,
+                category,
+                date
+            });
+            yield wallet.save();
         }
-        if (!password) {
-            return res.status(422).json({ message: 'A Senha é obrigatória' });
-        }
-        if (password !== confirmpassword) {
-            return res.status(422).json({ message: 'As senhas não conferem!' });
-        }
-        // check if User exists 
-        const userExists = yield User_1.default.findOne({ email: email });
-        if (userExists) {
-            return res.status(422).json({ message: 'Email já vinculado a uma conta!' });
-        }
-        // create password
-        const salt = yield bcrypt_1.default.genSalt(12);
-        const passwordHash = yield bcrypt_1.default.hash(password, salt);
-        //create User
-        const user = new User_1.default({
-            name,
-            email,
-            password: passwordHash,
-            statement: []
-        });
         try {
-            yield user.save();
             res.status(201).json({ message: 'usuario criado com sucesso!' });
         }
         catch (error) {
@@ -55,4 +38,4 @@ function RegisterUser(req, res) {
         }
     });
 }
-exports.default = RegisterUser;
+exports.default = CreateWallet;
