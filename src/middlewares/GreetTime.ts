@@ -15,6 +15,7 @@ export const GreetTime = (req, res, next) => {
   else {
     greet = "Boa Noite"
   }
+
   req.greet = greet
   next()
 

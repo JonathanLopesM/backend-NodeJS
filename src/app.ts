@@ -1,10 +1,10 @@
 require('dotenv').config()
 
+import cors from 'cors'
 import express from 'express'
 import bcrypt from 'bcrypt'
 import mongoose, { Schema } from 'mongoose'
 import jwt, { Secret } from 'jsonwebtoken'
-import cors from 'cors'
 
 import User from './models/User'
 

@@ -1,9 +1,9 @@
 import jwt, {Secret} from 'jsonwebtoken'
 
 //Middleware
-function checkToken(req, res, next) {
+async function checkToken(req, res, next) {
 
-  const authHeader = req.headers['authorization']
+  const authHeader = await req.headers['authorization']
   const token = authHeader && authHeader.split(" ")[1]
 
   if(!token){

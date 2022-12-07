@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 require('dotenv').config();
+const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
-const cors_1 = __importDefault(require("cors"));
 const CheckToken_1 = __importDefault(require("./middlewares/CheckToken"));
 const LoginUser_1 = __importDefault(require("./controllers/LoginUser"));
 const PrivateRoute_1 = __importDefault(require("./controllers/PrivateRoute"));
