@@ -51,7 +51,6 @@ export default async function LoginUser (req, res ) {
     },
     secret,
     )
-
     res.status(200).json({msg: 'Autenticação com sucesso', userReturn, token, TotalFounds, TotalDebits, TotalCredits, greet })
   } catch(error) {
     res.status(500).json({

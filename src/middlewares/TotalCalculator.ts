@@ -20,7 +20,7 @@ async function TotalCalculator(req, res, next) {
       TotalDebits += valueDebits[i]
     }
     // console.log(TotalDebits)
-    req.TotalDebits = TotalDebits
+    req.TotalDebits = Number(TotalDebits.toFixed(2))
   
   
 
@@ -37,11 +37,11 @@ async function TotalCalculator(req, res, next) {
     TotalCredits += valueCredits[i]
   }
   // console.log(TotalCredits)
-  req.TotalCredits = TotalCredits
+  req.TotalCredits = Number(TotalCredits.toFixed(2))
 
   var TotalFounds = TotalCredits - TotalDebits
   // console.log(TotalFounds)
-  req.TotalFounds = TotalFounds
+  req.TotalFounds = Number(TotalFounds.toFixed(2))
 
   return next()
 }

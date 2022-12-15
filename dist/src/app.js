@@ -16,6 +16,8 @@ require('dotenv').config();
 const cors_1 = __importDefault(require("cors"));
 const express_1 = __importDefault(require("express"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const MulterConfig_1 = require("./MulterConfig");
+const multer_1 = __importDefault(require("multer"));
 const CheckToken_1 = __importDefault(require("./middlewares/CheckToken"));
 const LoginUser_1 = __importDefault(require("./controllers/LoginUser"));
 const PrivateRoute_1 = __importDefault(require("./controllers/PrivateRoute"));
@@ -23,9 +25,19 @@ const RegisterUser_1 = __importDefault(require("./controllers/RegisterUser"));
 const RecoverPassword_1 = __importDefault(require("./controllers/RecoverPassword"));
 const ResetPass_1 = __importDefault(require("./controllers/ResetPass"));
 const ResetPassword_1 = __importDefault(require("./controllers/ResetPassword"));
-const Amounts_1 = __importDefault(require("./models/Amounts"));
 const TotalCalculator_1 = __importDefault(require("./middlewares/TotalCalculator"));
+const PatrimonyCalculate_1 = __importDefault(require("./middlewares/PatrimonyCalculate"));
 const GreetTime_1 = require("./middlewares/GreetTime");
+const Statement_1 = __importDefault(require("./controllers/Statement"));
+const Deposit_1 = __importDefault(require("./controllers/Deposit"));
+const UpdatedWallet_1 = __importDefault(require("./controllers/UpdatedWallet"));
+const DeleteWallet_1 = __importDefault(require("./controllers/DeleteWallet"));
+const CreateBalance_1 = __importDefault(require("./controllers/CreateBalance"));
+const ViewBalance_1 = __importDefault(require("./controllers/ViewBalance"));
+const DeleteBalance_1 = __importDefault(require("./controllers/DeleteBalance"));
+const TaxModel_1 = __importDefault(require("./models/TaxModel"));
+const TaxCalculate_1 = __importDefault(require("./middlewares/TaxCalculate"));
+const upload = (0, multer_1.default)({ storage: MulterConfig_1.storage, limits: MulterConfig_1.limits });
 const port = process.env.PORT || 3333;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
@@ -37,60 +49,52 @@ app.use('/images', express_1.default.static('images'));
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Bem vindo a nossa API' });
 });
+//Upload Pdf
+app.post('/uploadfdna', upload.single('file'), (req, res) => {
+    // console.log(req)
+    // console.log(req.file)
+    return res.json(req.file.filename);
+});
 // Private Route
 app.get('/user/:id', CheckToken_1.default, TotalCalculator_1.default, PrivateRoute_1.default);
-//statement
-app.get('/statement', CheckToken_1.default, TotalCalculator_1.default, GreetTime_1.GreetTime, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, TotalFounds, TotalDebits, TotalCredits, greet } = req;
-    const customer = yield Amounts_1.default.find({ user: userId });
-    return res.json({ customer, TotalFounds, TotalDebits, TotalCredits, greet });
-}));
-//Deposit 
-app.post('/deposit', CheckToken_1.default, TotalCalculator_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { description, value, type, date, category } = req.body;
-    const { userId, TotalFounds, TotalDebits, TotalCredits } = req;
-    var ValueTo = value.replace(".", "");
-    var ValueTo2 = ValueTo.replace(",", ".");
-    var amount = Number.parseFloat(ValueTo2).toFixed(2);
-    const dateform = new Date(date);
-    const dateTo = (((dateform.getDate() + 1)) + "/" + ((dateform.getMonth() + 1)) + "/" + dateform.getFullYear()).toString();
-    const statement = {
-        user: userId,
-        description,
-        amount,
-        type,
-        dateTo,
-        category
+//CRUD TAX PLANNING INIT
+app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { annualIncome, health, dependents, spendingOnEducation, ContributionPGBL, INSS, withholdingTax } = req.body;
+    const taxPlanning = {
+        annualIncome,
+        health,
+        dependents,
+        spendingOnEducation,
+        ContributionPGBL,
+        INSS,
+        withholdingTax
     };
-    const CustomerState = yield Amounts_1.default.create(statement);
-    return res.json({ CustomerState, TotalFounds, TotalDebits, TotalCredits });
+    const TaxPlanningCreate = yield TaxModel_1.default.create(taxPlanning);
+    return res.json({ TaxPlanningCreate });
 }));
+//FINANCIAL MANAGEMENT CRUD INIT
+app.get('/statement', CheckToken_1.default, TotalCalculator_1.default, GreetTime_1.GreetTime, Statement_1.default);
+//Deposit 
+app.post('/deposit', CheckToken_1.default, TotalCalculator_1.default, Deposit_1.default);
 //List Customer
-app.put('/updated/:id', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const { description, amount, type } = req.body;
-    let debit = yield Amounts_1.default.findByIdAndUpdate(id, {
-        description,
-        amount,
-        type
-    });
-    return res.json({ debit });
-}));
+app.put('/updated/:id', CheckToken_1.default, UpdatedWallet_1.default);
 // Delete 
-app.delete('/delete/:id', CheckToken_1.default, TotalCalculator_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const { userId, TotalFounds, TotalDebits, TotalCredits } = req;
-    yield Amounts_1.default.findByIdAndDelete(id);
-    return res.json({ TotalFounds, TotalDebits, TotalCredits });
-}));
+app.delete('/delete/:id', CheckToken_1.default, TotalCalculator_1.default, DeleteWallet_1.default);
+//BalanceShet CRUD INIT
+app.post('/createBalance', CheckToken_1.default, CreateBalance_1.default);
+app.get('/viewbalance', CheckToken_1.default, PatrimonyCalculate_1.default, ViewBalance_1.default);
+app.delete('/deletebalance/:id', CheckToken_1.default, TotalCalculator_1.default, DeleteBalance_1.default);
+//CRUD USER
 //Route Register User 
 app.post('/auth/register', RegisterUser_1.default);
 //Login User
 app.post('/auth/user', TotalCalculator_1.default, GreetTime_1.GreetTime, LoginUser_1.default);
+//RESET PASSWORD CRUD
 // Recover Password
 app.post('/recover', RecoverPassword_1.default);
-//Reset
+//Reset Get
 app.get('/reset-password/:id/:token', ResetPassword_1.default);
+//Reset Create
 app.post('/reset-password/:id/:token', ResetPass_1.default);
 // db credentials
 const dbUser = process.env.DB_USER;
