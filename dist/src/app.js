@@ -59,18 +59,50 @@ app.post('/uploadfdna', upload.single('file'), (req, res) => {
 app.get('/user/:id', CheckToken_1.default, TotalCalculator_1.default, PrivateRoute_1.default);
 //CRUD TAX PLANNING INIT
 app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { annualIncome, health, dependents, spendingOnEducation, ContributionPGBL, INSS, withholdingTax } = req.body;
+    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, spendingOnEducation, Alimony, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
+    // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
     const taxPlanning = {
-        annualIncome,
-        health,
-        dependents,
+        user: userId,
+        annualIncomeCorrect,
+        healthCorrect,
+        dependentsCorrect,
         spendingOnEducation,
+        Alimony,
         ContributionPGBL,
         INSS,
-        withholdingTax
+        withholdingTax,
+        FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
+        taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+        EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
     };
-    const TaxPlanningCreate = yield TaxModel_1.default.create(taxPlanning);
-    return res.json({ TaxPlanningCreate });
+    const TaxPlanCreateResponse = yield TaxModel_1.default.create(taxPlanning);
+    return res.json({ TaxPlanCreateResponse });
+}));
+app.get('/gettaxplans', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userId } = req;
+    const response = yield TaxModel_1.default.find({ user: userId });
+    res.json({ response });
+}));
+app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
+    console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, taxFirst, taxSecond, NewTaxBase, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, 'na rota');
+    const taxPlanning = {
+        user: userId,
+        annualIncomeCorrect,
+        healthCorrect,
+        dependentsCorrect,
+        spendingOnEducation,
+        Alimony,
+        ContributionPGBL,
+        INSS,
+        withholdingTax,
+        FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
+        taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+        EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
+    };
+    const response = yield TaxModel_1.default.findByIdAndUpdate(id, taxPlanning, { new: true });
+    res.json({ response });
 }));
 //FINANCIAL MANAGEMENT CRUD INIT
 app.get('/statement', CheckToken_1.default, TotalCalculator_1.default, GreetTime_1.GreetTime, Statement_1.default);

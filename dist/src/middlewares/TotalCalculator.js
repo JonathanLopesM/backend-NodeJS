@@ -48,6 +48,11 @@ function TotalCalculator(req, res, next) {
         var TotalFounds = TotalCredits - TotalDebits;
         // console.log(TotalFounds)
         req.TotalFounds = Number(TotalFounds.toFixed(2));
+        var PercentDebits = TotalDebits / (TotalCredits / 100);
+        req.PercentDebits = Number(PercentDebits.toFixed(2));
+        var PercentCredits = PercentDebits - 100;
+        PercentCredits = Math.abs(PercentCredits);
+        req.PercentCredits = Number(PercentCredits.toFixed(2));
         return next();
     });
 }

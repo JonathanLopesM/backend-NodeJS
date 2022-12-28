@@ -15,9 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Amounts_1 = __importDefault(require("../models/Amounts"));
 function Statement(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { userId, TotalFounds, TotalDebits, TotalCredits, greet } = req;
+        const { userId, TotalFounds, TotalDebits, TotalCredits, greet, PercentDebits, PercentCredits } = req;
         const customer = yield Amounts_1.default.find({ user: userId });
-        return res.json({ customer, TotalFounds, TotalDebits, TotalCredits, greet });
+        return res.json({ customer, TotalFounds, TotalDebits, TotalCredits, greet, PercentDebits, PercentCredits });
     });
 }
 exports.default = Statement;
