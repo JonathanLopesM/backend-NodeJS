@@ -88,7 +88,7 @@ async function PatrimonyCalculate (req, res, next) {
   const ILC = TotalActiveSheets / TotalPassiveSheets
     req.ILC = Number(ILC.toFixed(2))
   // IE 
-  const IE = TotalPassives / TotalActives
+  const IE = (TotalPassives*100) / TotalActives
     req.IE = Number(IE.toFixed(2))
 
 

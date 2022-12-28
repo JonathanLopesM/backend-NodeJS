@@ -63,20 +63,71 @@ app.get('/user/:id', checkToken, TotalCalculator, PrivateRoute )
 
 //CRUD TAX PLANNING INIT
 app.post('/taxplanning', checkToken, TaxCalculate, async (req, res) => {
-  const { annualIncome, health, dependents, spendingOnEducation, ContributionPGBL, INSS, withholdingTax } = req.body
+  const { userId, annualIncomeCorrect,healthCorrect, 
+    dependentsCorrect, spendingOnEducation, Alimony,
+    ContributionPGBL, INSS,withholdingTax,
+     FirstAliquot, SecondAliquot, 
+    ThirdAliquot, FourAliquot, FiveAliquot,
+    taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+     EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
+    }= req as any
+  // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
 
   const taxPlanning = {
-    annualIncome,
-    health, 
-    dependents, 
+    user:userId,
+    annualIncomeCorrect,
+    healthCorrect, 
+    dependentsCorrect, 
     spendingOnEducation, 
+    Alimony,
     ContributionPGBL, 
     INSS, 
-    withholdingTax
+    withholdingTax,
+    FirstAliquot, SecondAliquot,ThirdAliquot, FourAliquot, FiveAliquot,
+    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
+    EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
   }
-  const TaxPlanningCreate = await TaxModel.create(taxPlanning)
 
-  return res.json({ TaxPlanningCreate })
+  const TaxPlanCreateResponse = await TaxModel.create(taxPlanning)
+  
+  return res.json({ TaxPlanCreateResponse }) 
+})
+
+app.get('/gettaxplans', checkToken, async (req, res)=> {
+  const {userId} = req as any
+
+  const response = await TaxModel.find({user: userId})
+
+  res.json({ response })
+
+})
+
+app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
+  const {id} = req.params
+  const {userId, annualIncomeCorrect,healthCorrect,dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS,withholdingTax,
+     FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
+    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
+    }= req as any
+   console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution, 'na rota')
+
+  const taxPlanning = {
+    user:userId,
+    annualIncomeCorrect,
+    healthCorrect, 
+    dependentsCorrect, 
+    spendingOnEducation, 
+    Alimony,
+    ContributionPGBL, 
+    INSS, 
+    withholdingTax,
+    FirstAliquot, SecondAliquot,ThirdAliquot, FourAliquot, FiveAliquot,
+    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
+    EducationCalc, PGBLCalc, dependentsCalc,TotalDedution, CorrectAliquot,AliquoteEffect 
+  }
+  
+  const response = await TaxModel.findByIdAndUpdate(id, taxPlanning, {new:true})
+
+  res.json({ response })
 })
 
 
