@@ -7,6 +7,7 @@ async function checkToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1]
 
   if(!token){
+    console.log()
     return res.status(401).json({ msg: "Acesso negado!" })
   }
   //Token validation
