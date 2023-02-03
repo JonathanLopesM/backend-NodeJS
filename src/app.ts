@@ -93,26 +93,30 @@ console.log(response)
 app.post('/calcamount', checkToken, async (req, res)=>{
   const {yearsTime, taxValue, AmountCalc, AmountCalcInit } = req.body as any
 
-  // console.log(yearsTime, taxValue, AmountCalc, AmountCalcInit, 'antes de formatar')
-  var taxValueNum = taxValue.replace('.', '')
+  console.log(yearsTime, taxValue, AmountCalc, AmountCalcInit, 'antes de formatar')
+  var taxValueNum = taxValue.replaceAll('.', '')
   var taxValueCorrect = Number(taxValueNum.replace(',', '.'))
 
-  var amountNum = AmountCalc.replace('.','')
-  var amountNumCorrect = amountNum.replace(',','.')
+  var amountNum = AmountCalc.replaceAll('.','')
 
-  var amountInitNum = AmountCalcInit.replace('.', '')
-  var AmountInitCorrect = amountInitNum.replace(',', '.')
+  var amountNumCorrect = Number(amountNum.replace(',','.'))
+
+  var amountInitNum = AmountCalcInit.replaceAll('.', '')
+  var AmountInitCorrect = Number(amountInitNum.replace(',', '.'))
 // console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, taxValueCorrect, 'depois de format')
   const investmentAmount = amountNumCorrect - AmountInitCorrect 
 const interestRate = (taxValueCorrect / 12) / 100;
 const months = yearsTime * 12;
 const monthlyInterestRate = interestRate;
 
+console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, investmentAmount, interestRate, months , 'dados tratados')
+
 const resGuria = ((0.0095 / 1) - 1 ) / ((1+ 0.0095)**480)
 // console.log(resGuria, "calculo ")
 const response = investmentAmount * ((1+ interestRate)** -1) * (interestRate / (((1 + interestRate)**months) - 1))
 // console.log(response, 'resultado')
 
+console.log(response, 'response ')
 return res.json({response})
 
 })
@@ -133,21 +137,21 @@ app.post('/aposent', checkToken, async (req, res) => {
 
   var yearOld = Number(yearsOldNow)
   
-  const patrimonyFormated = patrimonyInit.replace('.', '')
+  const patrimonyFormated = patrimonyInit.replaceAll('.', '')
   var montante = Number(patrimonyFormated.replace(',', '.')) // Valor Acumulado Atualmente
   var montanteInit = montante
-  const applyMonthFormated = applyMonth.replace('.', '')
+  const applyMonthFormated = applyMonth.replaceAll('.', '')
   var ValueMonth = Number(applyMonthFormated.replace(',', '.')) //55.76 //Valor de aporte por mes
 
   var taxNumber = Number(taxYear)
 
-  const taxMonthFormated = taxMonth.replace('.', '')
+  const taxMonthFormated = taxMonth.replaceAll('.', '')
   var taxaM = Number(taxMonthFormated.replace(',', '.')) //0.95 // Taxa por mês
   
-  const projectedINSSFormated = projectedINSS.replace('.','')
+  const projectedINSSFormated = projectedINSS.replaceAll('.','')
   var INSSproject = Number(projectedINSSFormated.replace(',', '.'))
 
-  const otherSourcesFormated = otherSources.replace('.','')
+  const otherSourcesFormated = otherSources.replaceAll('.','')
   var otherSourcesFinal = Number(otherSourcesFormated.replace(',', '.'))
 
   const timeWork = yearsConstruct
@@ -157,7 +161,7 @@ app.post('/aposent', checkToken, async (req, res) => {
   var ValueApos = 0
   var ExpectLife = Number(lifeExpect)
 
-  var RetireValueForm = retirementeValue.replace('.', '')
+  var RetireValueForm = retirementeValue.replaceAll('.', '')
   var RetireValue = Number(RetireValueForm.replace(',', '.'))
   var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal) //Valor a ser descontado para objetivo de aposentadoria
   var tempoApose = (ExpectLife - retirement) * 12 // meses de aposentadoria 65-90 anos 
@@ -196,7 +200,7 @@ app.post('/aposent', checkToken, async (req, res) => {
           idadeMilion = Number(idade)
         }
       }
-    //  console.log( i, idade.toFixed(2) , montante, "Juros compostos com acumulado")
+     console.log( i, idade.toFixed(2) , montante, "Juros compostos com acumulado")
   }
   var amountRetire = montante
   var gainAmountInit = amountRetire - totalAmountInit
@@ -210,7 +214,7 @@ app.post('/aposent', checkToken, async (req, res) => {
       // console.log(idade)
       ValueApos = montante
     }
-  //  console.log( idade.toFixed(2), montante, "Descontando Aposentadoria")
+   console.log( idade.toFixed(2), montante, "Descontando Aposentadoria")
   }
   const tax = taxaM / 100
   const valuetotal = RetireValue / tax
@@ -259,21 +263,21 @@ app.put('/aposent/:id', checkToken, async (req, res) => {
   var yearOld = Number(yearsOldNow)
   
 
-  const patrimonyFormated = patrimonyInit.replace('.', '')
+  const patrimonyFormated = patrimonyInit.replaceAll('.', '')
   var montante = Number(patrimonyFormated.replace(',', '.')) // Valor Acumulado Atualmente
   var montanteInit = montante
-  const applyMonthFormated = applyMonth.replace('.', '')
+  const applyMonthFormated = applyMonth.replaceAll('.', '')
   var ValueMonth = Number(applyMonthFormated.replace(',', '.')) //55.76 //Valor de aporte por mes
 
   var taxNumber = Number(taxYear)
 
-  const taxMonthFormated = taxMonth.replace('.', '')
+  const taxMonthFormated = taxMonth.replaceAll('.', '')
   var taxaM = Number(taxMonthFormated.replace(',', '.')) //0.95 // Taxa por mês
   
-  const projectedINSSFormated = projectedINSS.replace('.','')
+  const projectedINSSFormated = projectedINSS.replaceAll('.','')
   var INSSproject = Number(projectedINSSFormated.replace(',', '.'))
 
-  const otherSourcesFormated = otherSources.replace('.','')
+  const otherSourcesFormated = otherSources.replaceAll('.','')
   var otherSourcesFinal = Number(otherSourcesFormated.replace(',', '.'))
 
   const timeWork = yearsConstruct
@@ -283,7 +287,7 @@ app.put('/aposent/:id', checkToken, async (req, res) => {
   var ValueApos = 0
   var ExpectLife = Number(lifeExpect)
 
-  var RetireValueForm = retirementeValue.replace('.', '')
+  var RetireValueForm = retirementeValue.replaceAll('.', '')
   var RetireValue = Number(RetireValueForm.replace(',', '.'))
   var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal) //Valor a ser descontado para objetivo de aposentadoria
   var tempoApose = (ExpectLife - retirement) * 12 // meses de aposentadoria 65-90 anos 
@@ -380,7 +384,7 @@ app.post('/active', checkToken, async (req, res) => {
 
   const valueNow = ticker.data.results[0].regularMarketPrice
 
-  const format =  buyValue.replace('.', '')
+  const format =  buyValue.replaceAll('.', '')
   const formatedBuyValue = format.replace(',', '.')
   const valueTotalBuy = Number(quantBuy) * Number(formatedBuyValue)
   const valueTotalBuyNow = Number(quantBuy) * valueNow
@@ -549,10 +553,11 @@ app.post('/taxplanning', checkToken, TaxCalculate, async (req, res) => {
     ContributionPGBL, INSS,withholdingTax,
      FirstAliquot, SecondAliquot, 
     ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+    taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
      EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
     }= req as any
-  // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
+    console.log(BalanceRefounded, 'post')
+  // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, BalanceRefounded ,taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
 
   const taxPlanning = {
     user:userId,
@@ -565,7 +570,7 @@ app.post('/taxplanning', checkToken, TaxCalculate, async (req, res) => {
     INSS, 
     withholdingTax,
     FirstAliquot, SecondAliquot,ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
+    taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
     EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
   }
 
@@ -587,8 +592,9 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
   const {id} = req.params
   const {userId, annualIncomeCorrect,healthCorrect,dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS,withholdingTax,
      FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
+    taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
     }= req as any
+    console.log(BalanceRefounded, 'up')
   //  console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution, 'na rota')
 
   const taxPlanning = {
@@ -602,12 +608,12 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
     INSS, 
     withholdingTax,
     FirstAliquot, SecondAliquot,ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
+    taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
     EducationCalc, PGBLCalc, dependentsCalc,TotalDedution, CorrectAliquot,AliquoteEffect 
   }
   
   const response = await TaxModel.findByIdAndUpdate(id, taxPlanning, {new:true})
-
+  console.log(response, 'up')
   res.json({ response })
 })
 

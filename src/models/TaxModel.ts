@@ -52,6 +52,7 @@ const taxSchema = new Schema({
   FourAliquot: {type: Schema.Types.Number}, 
   FiveAliquot: {type: Schema.Types.Number},
   taxTotal: {type: Schema.Types.Number}, 
+  BalanceRefounded: {type: Schema.Types.Number},
   NewTaxBase: {type: Schema.Types.Number}, 
   taxFirst: {type: Schema.Types.Number}, 
   taxSecond: {type: Schema.Types.Number},
