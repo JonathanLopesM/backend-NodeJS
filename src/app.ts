@@ -556,7 +556,7 @@ app.post('/taxplanning', checkToken, TaxCalculate, async (req, res) => {
     taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
      EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
     }= req as any
-    console.log(BalanceRefounded, 'post')
+    // console.log(BalanceRefounded, 'post')
   // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, BalanceRefounded ,taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
 
   const taxPlanning = {
@@ -573,6 +573,7 @@ app.post('/taxplanning', checkToken, TaxCalculate, async (req, res) => {
     taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
     EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
   }
+  // console.log(taxPlanning, 'verificar ')
 
   const TaxPlanCreateResponse = await TaxModel.create(taxPlanning)
   
@@ -594,7 +595,7 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
      FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
     taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
     }= req as any
-    console.log(BalanceRefounded, 'up')
+    // console.log(BalanceRefounded, 'up')
   //  console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution, 'na rota')
 
   const taxPlanning = {
@@ -613,7 +614,7 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
   }
   
   const response = await TaxModel.findByIdAndUpdate(id, taxPlanning, {new:true})
-  console.log(response, 'up')
+  // console.log(response, 'up')
   res.json({ response })
 })
 
