@@ -86,22 +86,24 @@ app.get('/alpha', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 app.post('/calcamount', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { yearsTime, taxValue, AmountCalc, AmountCalcInit } = req.body;
-    // console.log(yearsTime, taxValue, AmountCalc, AmountCalcInit, 'antes de formatar')
-    var taxValueNum = taxValue.replace('.', '');
+    console.log(yearsTime, taxValue, AmountCalc, AmountCalcInit, 'antes de formatar');
+    var taxValueNum = taxValue.replaceAll('.', '');
     var taxValueCorrect = Number(taxValueNum.replace(',', '.'));
-    var amountNum = AmountCalc.replace('.', '');
-    var amountNumCorrect = amountNum.replace(',', '.');
-    var amountInitNum = AmountCalcInit.replace('.', '');
-    var AmountInitCorrect = amountInitNum.replace(',', '.');
+    var amountNum = AmountCalc.replaceAll('.', '');
+    var amountNumCorrect = Number(amountNum.replace(',', '.'));
+    var amountInitNum = AmountCalcInit.replaceAll('.', '');
+    var AmountInitCorrect = Number(amountInitNum.replace(',', '.'));
     // console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, taxValueCorrect, 'depois de format')
     const investmentAmount = amountNumCorrect - AmountInitCorrect;
     const interestRate = (taxValueCorrect / 12) / 100;
     const months = yearsTime * 12;
     const monthlyInterestRate = interestRate;
+    console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, investmentAmount, interestRate, months, 'dados tratados');
     const resGuria = ((0.0095 / 1) - 1) / ((1 + 0.0095) ** 480);
     // console.log(resGuria, "calculo ")
     const response = investmentAmount * ((1 + interestRate) ** -1) * (interestRate / (((1 + interestRate) ** months) - 1));
     // console.log(response, 'resultado')
+    console.log(response, 'response ');
     return res.json({ response });
 }));
 //API Google Spreedsheet
@@ -117,24 +119,24 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
     const { userId } = req;
     // console.log(userId, 'user')
     var yearOld = Number(yearsOldNow);
-    const patrimonyFormated = patrimonyInit.replace('.', '');
+    const patrimonyFormated = patrimonyInit.replaceAll('.', '');
     var montante = Number(patrimonyFormated.replace(',', '.')); // Valor Acumulado Atualmente
     var montanteInit = montante;
-    const applyMonthFormated = applyMonth.replace('.', '');
+    const applyMonthFormated = applyMonth.replaceAll('.', '');
     var ValueMonth = Number(applyMonthFormated.replace(',', '.')); //55.76 //Valor de aporte por mes
     var taxNumber = Number(taxYear);
-    const taxMonthFormated = taxMonth.replace('.', '');
+    const taxMonthFormated = taxMonth.replaceAll('.', '');
     var taxaM = Number(taxMonthFormated.replace(',', '.')); //0.95 // Taxa por mês
-    const projectedINSSFormated = projectedINSS.replace('.', '');
+    const projectedINSSFormated = projectedINSS.replaceAll('.', '');
     var INSSproject = Number(projectedINSSFormated.replace(',', '.'));
-    const otherSourcesFormated = otherSources.replace('.', '');
+    const otherSourcesFormated = otherSources.replaceAll('.', '');
     var otherSourcesFinal = Number(otherSourcesFormated.replace(',', '.'));
     const timeWork = yearsConstruct;
     var tempoM = timeWork * 12; // Meses de Criação de patrimonio
     var adicionado = 0;
     var ValueApos = 0;
     var ExpectLife = Number(lifeExpect);
-    var RetireValueForm = retirementeValue.replace('.', '');
+    var RetireValueForm = retirementeValue.replaceAll('.', '');
     var RetireValue = Number(RetireValueForm.replace(',', '.'));
     var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal); //Valor a ser descontado para objetivo de aposentadoria
     var tempoApose = (ExpectLife - retirement) * 12; // meses de aposentadoria 65-90 anos 
@@ -167,7 +169,7 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
                 idadeMilion = Number(idade);
             }
         }
-        //  console.log( i, idade.toFixed(2) , montante, "Juros compostos com acumulado")
+        console.log(i, idade.toFixed(2), montante, "Juros compostos com acumulado");
     }
     var amountRetire = montante;
     var gainAmountInit = amountRetire - totalAmountInit;
@@ -179,7 +181,7 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
             // console.log(idade)
             ValueApos = montante;
         }
-        //  console.log( idade.toFixed(2), montante, "Descontando Aposentadoria")
+        console.log(idade.toFixed(2), montante, "Descontando Aposentadoria");
     }
     const tax = taxaM / 100;
     const valuetotal = RetireValue / tax;
@@ -217,24 +219,24 @@ app.put('/aposent/:id', CheckToken_1.default, (req, res) => __awaiter(void 0, vo
     const { userId } = req;
     // console.log(userId, 'user')
     var yearOld = Number(yearsOldNow);
-    const patrimonyFormated = patrimonyInit.replace('.', '');
+    const patrimonyFormated = patrimonyInit.replaceAll('.', '');
     var montante = Number(patrimonyFormated.replace(',', '.')); // Valor Acumulado Atualmente
     var montanteInit = montante;
-    const applyMonthFormated = applyMonth.replace('.', '');
+    const applyMonthFormated = applyMonth.replaceAll('.', '');
     var ValueMonth = Number(applyMonthFormated.replace(',', '.')); //55.76 //Valor de aporte por mes
     var taxNumber = Number(taxYear);
-    const taxMonthFormated = taxMonth.replace('.', '');
+    const taxMonthFormated = taxMonth.replaceAll('.', '');
     var taxaM = Number(taxMonthFormated.replace(',', '.')); //0.95 // Taxa por mês
-    const projectedINSSFormated = projectedINSS.replace('.', '');
+    const projectedINSSFormated = projectedINSS.replaceAll('.', '');
     var INSSproject = Number(projectedINSSFormated.replace(',', '.'));
-    const otherSourcesFormated = otherSources.replace('.', '');
+    const otherSourcesFormated = otherSources.replaceAll('.', '');
     var otherSourcesFinal = Number(otherSourcesFormated.replace(',', '.'));
     const timeWork = yearsConstruct;
     var tempoM = timeWork * 12; // Meses de Criação de patrimonio
     var adicionado = 0;
     var ValueApos = 0;
     var ExpectLife = Number(lifeExpect);
-    var RetireValueForm = retirementeValue.replace('.', '');
+    var RetireValueForm = retirementeValue.replaceAll('.', '');
     var RetireValue = Number(RetireValueForm.replace(',', '.'));
     var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal); //Valor a ser descontado para objetivo de aposentadoria
     var tempoApose = (ExpectLife - retirement) * 12; // meses de aposentadoria 65-90 anos 
@@ -309,7 +311,7 @@ app.post('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0
     // console.log(userId, 'user')
     const ticker = yield axios_1.default.get(`https://brapi.dev/api/quote/${codeName}`);
     const valueNow = ticker.data.results[0].regularMarketPrice;
-    const format = buyValue.replace('.', '');
+    const format = buyValue.replaceAll('.', '');
     const formatedBuyValue = format.replace(',', '.');
     const valueTotalBuy = Number(quantBuy) * Number(formatedBuyValue);
     const valueTotalBuyNow = Number(quantBuy) * valueNow;
@@ -442,8 +444,9 @@ app.get('/sticker', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 }));
 //CRUD TAX PLANNING INIT
 app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, spendingOnEducation, Alimony, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
-    // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
+    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, spendingOnEducation, Alimony, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
+    // console.log(BalanceRefounded, 'post')
+    // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, BalanceRefounded ,taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
     const taxPlanning = {
         user: userId,
         annualIncomeCorrect,
@@ -455,9 +458,10 @@ app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res
         INSS,
         withholdingTax,
         FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
-        taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+        taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
         EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
     };
+    // console.log(taxPlanning, 'verificar ')
     const TaxPlanCreateResponse = yield TaxModel_1.default.create(taxPlanning);
     return res.json({ TaxPlanCreateResponse });
 }));
@@ -468,7 +472,8 @@ app.get('/gettaxplans', CheckToken_1.default, (req, res) => __awaiter(void 0, vo
 }));
 app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
+    const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
+    // console.log(BalanceRefounded, 'up')
     //  console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution, 'na rota')
     const taxPlanning = {
         user: userId,
@@ -481,10 +486,11 @@ app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, (req, 
         INSS,
         withholdingTax,
         FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
-        taxTotal, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
+        taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
         EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
     };
     const response = yield TaxModel_1.default.findByIdAndUpdate(id, taxPlanning, { new: true });
+    // console.log(response, 'up')
     res.json({ response });
 }));
 //FINANCIAL MANAGEMENT CRUD INIT

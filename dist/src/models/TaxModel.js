@@ -44,6 +44,7 @@ const taxSchema = new mongoose_1.Schema({
     FourAliquot: { type: mongoose_1.Schema.Types.Number },
     FiveAliquot: { type: mongoose_1.Schema.Types.Number },
     taxTotal: { type: mongoose_1.Schema.Types.Number },
+    BalanceRefounded: { type: mongoose_1.Schema.Types.Number },
     NewTaxBase: { type: mongoose_1.Schema.Types.Number },
     taxFirst: { type: mongoose_1.Schema.Types.Number },
     taxSecond: { type: mongoose_1.Schema.Types.Number },

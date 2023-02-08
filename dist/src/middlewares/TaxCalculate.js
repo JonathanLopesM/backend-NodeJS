@@ -179,7 +179,13 @@ function TaxCalculate(req, res, next) {
         }
         let taxTotal = Number(taxFirst.toFixed(4)) + Number(taxSecond.toFixed(4)) + Number(taxThird.toFixed(4)) + Number(taxFour.toFixed(4)) + Number(taxFive.toFixed(4));
         taxTotal = Number(taxTotal.toFixed(2));
+        console.log(taxTotal, 'taxTotal');
         req.taxTotal = taxTotal;
+        //Tax return 
+        let BalanceRefounded = withholdingTax - taxTotal;
+        BalanceRefounded = Number((Math.abs(BalanceRefounded)).toFixed(2));
+        req.BalanceRefounded = BalanceRefounded;
+        console.log(BalanceRefounded, 'Calc restituir');
         req.CorrectAliquot = CorrectAliquot;
         let AliquoteEffect = (taxTotal * 100) / annualIncomeCorrect;
         AliquoteEffect = Number(AliquoteEffect.toFixed(2));
