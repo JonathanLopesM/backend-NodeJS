@@ -183,9 +183,14 @@ function TaxCalculate(req, res, next) {
         req.taxTotal = taxTotal;
         //Tax return 
         let BalanceRefounded = withholdingTax - taxTotal;
-        BalanceRefounded = Number((Math.abs(BalanceRefounded)).toFixed(2));
+        BalanceRefounded = Number(BalanceRefounded.toFixed(2));
         req.BalanceRefounded = BalanceRefounded;
         console.log(BalanceRefounded, 'Calc restituir');
+        console.log(withholdingTax, 'withholdingTax');
+        console.log(taxTotal, 'taxTotal');
+        let PercentBalanceRefounded = Number(100 - ((taxTotal * 100) / withholdingTax));
+        req.PercentBalanceRefounded = PercentBalanceRefounded;
+        console.log(PercentBalanceRefounded, 'Porcentagem correct');
         req.CorrectAliquot = CorrectAliquot;
         let AliquoteEffect = (taxTotal * 100) / annualIncomeCorrect;
         AliquoteEffect = Number(AliquoteEffect.toFixed(2));

@@ -45,6 +45,10 @@ const projectLifeSchema = new mongoose_1.Schema({
     tenYears: { type: mongoose_1.Schema.Types.Number, require: true },
     PortionMin: { type: mongoose_1.Schema.Types.Number, require: true },
     PortionNegative: { type: mongoose_1.Schema.Types.Number, require: true },
+    PercentGainTenYears: { type: mongoose_1.Schema.Types.Number },
+    PercentGainFees: { type: mongoose_1.Schema.Types.Number },
+    PercentGainRetirement: { type: mongoose_1.Schema.Types.Number },
+    PercentProjectPatrimony: { type: mongoose_1.Schema.Types.Number },
     dateTo: { type: String, default: Date.now, require: true },
     user: {
         type: mongoose_1.Schema.Types.ObjectId,
