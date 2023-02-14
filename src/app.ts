@@ -231,12 +231,28 @@ app.post('/aposent', checkToken, async (req, res) => {
   const PortionNegative = Number((PortionMin - (PortionMin * 0.0804)).toFixed(2))
   // console.log(PortionNegative, 'parcela negativa')
 
+  const PercentGainTenYears = (tenYears * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  // console.log(PercentGainTenYears, 'PercentGainTenYears')
+
+  const PercentGainFees = ( gainAmountInit * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentGainFees, 'PercentGainFees')
+
+  const PercentGainRetirement = ( ValueApos * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentGainRetirement, 'PercentGainRetirement')
+
+  const PercentProjectPatrimony = ( montante * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentProjectPatrimony, 'PercentProjectPatrimony')
+
+
+
   const data = {
     yearOld, retirement, ExpectLife, ValueMonth, 
     montanteInit,  RetireValue,tempoM, tempoApose, 
     INSSproject, otherSourcesFinal, taxaM, taxNumber,
     montante, ValueApos ,idadeMilion, totalAmountInit, 
     gainAmountInit, tenYears, PortionMin, PortionNegative,
+    PercentGainTenYears, PercentGainFees,PercentGainRetirement,
+    PercentProjectPatrimony,
     user: userId
   }
   const Retirement = await ProjectLife.create(data)
@@ -356,16 +372,30 @@ app.put('/aposent/:id', checkToken, async (req, res) => {
   const PortionNegative = Number((PortionMin - (PortionMin * 0.0804)).toFixed(2))
   // console.log(PortionNegative, 'parcela negativa')
 
+  const PercentGainTenYears = (tenYears * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentGainTenYears, 'PercentGainTenYears')
+
+  const PercentGainFees = ( gainAmountInit * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentGainFees, 'PercentGainFees')
+
+  const PercentGainRetirement = ( ValueApos * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentGainRetirement, 'PercentGainRetirement')
+
+  const PercentProjectPatrimony = ( montante * 100)/ (montanteInit === 0 ? 1 : montanteInit)
+  console.log(PercentProjectPatrimony, 'PercentProjectPatrimony')
+
   const data = {
     yearOld, retirement, ExpectLife, ValueMonth, 
     montanteInit,  RetireValue,tempoM, tempoApose, 
     INSSproject, otherSourcesFinal, taxaM, taxNumber,
     montante, ValueApos ,idadeMilion, totalAmountInit, 
     gainAmountInit, tenYears, PortionMin, PortionNegative,
+    PercentGainTenYears, PercentGainFees,PercentGainRetirement,
+    PercentProjectPatrimony,
     user: userId
   }
   const Retirement = await ProjectLife.findByIdAndUpdate(id, data, {new:true})
-  console.log('idadeAtual',yearOld, 'idade aposentado', retirement, 'expectativa', ExpectLife, 'valor por mes', ValueMonth, 'Montante inicial', montanteInit, 'retirado na aposentadoria', RetireValue,'tempo de produçao',tempoM, 'tempo de aposentadoria',tempoApose, 'valor inss', INSSproject, 'outras fontes', otherSourcesFinal, 'taxa mensal', taxaM, 'taxa anual', taxNumber, 'montante final calculo', montante, 'montante no ano de aposentado', ValueApos , 'idade 1 milhão', idadeMilion, 'total guardado sem juros',  totalAmountInit,gainAmountInit, 'montante em 10 anos',tenYears, 'parcela Boa', PortionMin, 'Parcela ruim', PortionNegative, 'Salvar no banco' )  
+  // console.log('idadeAtual',yearOld, 'idade aposentado', retirement, 'expectativa', ExpectLife, 'valor por mes', ValueMonth, 'Montante inicial', montanteInit, 'retirado na aposentadoria', RetireValue,'tempo de produçao',tempoM, 'tempo de aposentadoria',tempoApose, 'valor inss', INSSproject, 'outras fontes', otherSourcesFinal, 'taxa mensal', taxaM, 'taxa anual', taxNumber, 'montante final calculo', montante, 'montante no ano de aposentado', ValueApos , 'idade 1 milhão', idadeMilion, 'total guardado sem juros',  totalAmountInit,gainAmountInit, 'montante em 10 anos',tenYears, 'parcela Boa', PortionMin, 'Parcela ruim', PortionNegative, 'Salvar no banco' )  
 
   return res.json({montante, ValueApos , idadeMilion, totalAmountInit,gainAmountInit, tenYears, PortionMin, PortionNegative })
 })
@@ -593,7 +623,7 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
   const {id} = req.params
   const {userId, annualIncomeCorrect,healthCorrect,dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS,withholdingTax,
      FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
+    taxTotal,BalanceRefounded,PercentBalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution,CorrectAliquot,AliquoteEffect
     }= req as any
     // console.log(BalanceRefounded, 'up')
   //  console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, TotalDedution, 'na rota')
@@ -609,7 +639,7 @@ app.put('/taxplanning/:id', checkToken, TaxCalculate, async (req, res) => {
     INSS, 
     withholdingTax,
     FirstAliquot, SecondAliquot,ThirdAliquot, FourAliquot, FiveAliquot,
-    taxTotal,BalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
+    taxTotal,BalanceRefounded,PercentBalanceRefounded, NewTaxBase, taxFirst, taxSecond,TaxThirdRate, TaxFourRate, TaxFiveRate,
     EducationCalc, PGBLCalc, dependentsCalc,TotalDedution, CorrectAliquot,AliquoteEffect 
   }
   

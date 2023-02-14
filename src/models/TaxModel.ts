@@ -16,6 +16,7 @@ interface ITax {
   FiveAliquot:number,
   taxTotal: number,
   BalanceRefounded:number, 
+  PercentBalanceRefounded: number,
   NewTaxBase: number, 
   taxFirst: number, 
   taxSecond: number,
@@ -26,7 +27,8 @@ interface ITax {
   PGBLCalc:number,
   TotalDedution:number;
   CorrectAliquot: string;
-  AliquoteEffect:number;
+  AliquoteEffect: number;
+  
   dateTo: Date;
   dateform:string;
   user: string;
@@ -54,6 +56,7 @@ const taxSchema = new Schema({
   FiveAliquot: {type: Schema.Types.Number},
   taxTotal: {type: Schema.Types.Number}, 
   BalanceRefounded: {type: Schema.Types.Number},
+  PercentBalanceRefounded:{type: Schema.Types.Number},
   NewTaxBase: {type: Schema.Types.Number}, 
   taxFirst: {type: Schema.Types.Number}, 
   taxSecond: {type: Schema.Types.Number},
@@ -66,6 +69,7 @@ const taxSchema = new Schema({
   dependentsCalc: {type: Schema.Types.Number},
   CorrectAliquot: {type:String},
   AliquoteEffect:{type: Schema.Types.Number},
+  
   dateform:{type:String},
   dateTo: {type: String, default: Date.now, require:true },
   

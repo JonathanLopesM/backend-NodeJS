@@ -21,6 +21,10 @@ interface IProjectLife {
   tenYears: number;
   PortionMin:number;
   PortionNegative: number;
+  PercentGainTenYears: number;
+  PercentGainFees: number;
+  PercentGainRetirement: number;
+  PercentProjectPatrimony: number;
   user: string;
   type: string;
 }
@@ -45,6 +49,10 @@ const projectLifeSchema = new Schema({
   tenYears: {type: Schema.Types.Number, require:true},
   PortionMin: {type: Schema.Types.Number, require:true},
   PortionNegative: {type: Schema.Types.Number, require:true},
+  PercentGainTenYears: {type: Schema.Types.Number},
+  PercentGainFees: {type: Schema.Types.Number},
+  PercentGainRetirement: {type: Schema.Types.Number},
+  PercentProjectPatrimony: {type: Schema.Types.Number},
   
   dateTo: {type: String, default: Date.now, require:true },
   user: {
