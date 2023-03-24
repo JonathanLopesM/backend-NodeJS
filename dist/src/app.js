@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -19,8 +10,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const MulterConfig_1 = require("./MulterConfig");
 const multer_1 = __importDefault(require("multer"));
 const axios_1 = __importDefault(require("axios"));
-const request_1 = __importDefault(require("request"));
-const credentials = require('../credentials.json');
+// import { GoogleSpreadsheet } from 'google-spreadsheet'
 const CheckToken_1 = __importDefault(require("./middlewares/CheckToken"));
 const LoginUser_1 = __importDefault(require("./controllers/LoginUser"));
 const PrivateRoute_1 = __importDefault(require("./controllers/PrivateRoute"));
@@ -42,6 +32,9 @@ const TaxModel_1 = __importDefault(require("./models/TaxModel"));
 const TaxCalculate_1 = __importDefault(require("./middlewares/TaxCalculate"));
 const Actives_1 = __importDefault(require("./models/Actives"));
 const ProjectLife_1 = __importDefault(require("./models/ProjectLife"));
+const CalcAmount_1 = require("./controllers/CalcAmount");
+const ChartsTime_1 = __importDefault(require("./models/ChartsTime"));
+const CreateAposent_1 = require("./controllers/CreateAposent");
 const upload = (0, multer_1.default)({ storage: MulterConfig_1.storage, limits: MulterConfig_1.limits });
 const port = process.env.PORT || 3333;
 const app = (0, express_1.default)();
@@ -63,61 +56,44 @@ app.post('/uploadfdna', upload.single('file'), (req, res) => {
 // Private Route
 app.get('/user/:id', CheckToken_1.default, TotalCalculator_1.default, PrivateRoute_1.default);
 //API ALPHA
-app.get('/alpha', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.get('/alpha', async (req, res) => {
     const token = process.env.TOKEN_API;
     const url = `https://www.alphavantage.co/query?function=SYMBOL_SEARCH&keywords=petr&apikey=${token}`;
-    const response = yield request_1.default.get({
-        url: url,
-        json: true,
+    const response = await axios_1.default.get(url, {
         headers: { 'User-Agent': 'request' }
-    }, (err, res, data) => {
-        if (err) {
-            console.log('Error:', err);
-        }
-        else if (res.statusCode !== 200) {
-            console.log('Status:', res.statusCode);
-        }
-        else {
-            // data is successfully parsed as a JSON object:
-            console.log(data);
-        }
     });
+    if (!response.data) {
+        console.log('Error:', response.data);
+    }
+    else {
+        // data is successfully parsed as a JSON object:
+        console.log(response.data);
+    }
     console.log(response);
-}));
-app.post('/calcamount', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { yearsTime, taxValue, AmountCalc, AmountCalcInit } = req.body;
-    console.log(yearsTime, taxValue, AmountCalc, AmountCalcInit, 'antes de formatar');
-    var taxValueNum = taxValue.replaceAll('.', '');
-    var taxValueCorrect = Number(taxValueNum.replace(',', '.'));
-    var amountNum = AmountCalc.replaceAll('.', '');
-    var amountNumCorrect = Number(amountNum.replace(',', '.'));
-    var amountInitNum = AmountCalcInit.replaceAll('.', '');
-    var AmountInitCorrect = Number(amountInitNum.replace(',', '.'));
-    // console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, taxValueCorrect, 'depois de format')
-    const investmentAmount = amountNumCorrect - AmountInitCorrect;
-    const interestRate = (taxValueCorrect / 12) / 100;
-    const months = yearsTime * 12;
-    const monthlyInterestRate = interestRate;
-    console.log(taxValueCorrect, amountNumCorrect, AmountInitCorrect, investmentAmount, interestRate, months, 'dados tratados');
-    const resGuria = ((0.0095 / 1) - 1) / ((1 + 0.0095) ** 480);
-    // console.log(resGuria, "calculo ")
-    const response = investmentAmount * ((1 + interestRate) ** -1) * (interestRate / (((1 + interestRate) ** months) - 1));
-    // console.log(response, 'resultado')
-    console.log(response, 'response ');
-    return res.json({ response });
-}));
-//API Google Spreedsheet
-app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // const docId = process.env.ID_PLANILHA
-    // const doc = new GoogleSpreadsheet(docId)
-    // const response = await doc.useServiceAccountAuth(credentials, async () => {
-    //   await doc.loadInfo()
-    // })
-    // console.log(response)
+    res.send(200).json({ response });
+});
+app.post('/calcamount', CheckToken_1.default, CalcAmount_1.CalcAmount);
+//Calc Aposent Tax and future expectation
+app.post('/aposent', CheckToken_1.default, CreateAposent_1.CreateAposent);
+app.get('/aposent', CheckToken_1.default, async (req, res) => {
+    const started = new Date();
+    const { userId } = req;
+    // console.log(userId, 'idUser')
+    const response = await ProjectLife_1.default.find({ user: userId });
+    const ResChart = await ChartsTime_1.default.find({ user: userId });
+    // const ResChart = chartRes
+    const end = new Date();
+    console.log(`Took ${end - started}ms aposent`);
+    return res.json({ response, ResChart });
+});
+app.put('/aposent/:id', CheckToken_1.default, async (req, res) => {
+    const started = new Date();
+    const { id } = req.params;
     const { yearsOldNow, retirement, applyMonth, patrimonyInit, yearsConstruct, lifeExpect, retirementeValue, projectedINSS, otherSources, taxYear, taxMonth } = req.body;
     // console.log(yearsOldNow,retirement, applyMonth, patrimonyInit, yearsConstruct, lifeExpect,retirementeValue, projectedINSS , otherSources, taxYear,taxMonth, 'req.body')
     const { userId } = req;
-    // console.log(userId, 'user')
+    //  console.log(userId, 'user')
+    //  console.log(id, 'id')
     var yearOld = Number(yearsOldNow);
     const patrimonyFormated = patrimonyInit.replaceAll('.', '');
     var montante = Number(patrimonyFormated.replace(',', '.')); // Valor Acumulado Atualmente
@@ -125,8 +101,8 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
     const applyMonthFormated = applyMonth.replaceAll('.', '');
     var ValueMonth = Number(applyMonthFormated.replace(',', '.')); //55.76 //Valor de aporte por mes
     var taxNumber = Number(taxYear);
-    const taxMonthFormated = taxMonth.replaceAll('.', '');
-    var taxaM = Number(taxMonthFormated.replace(',', '.')); //0.95 // Taxa por mês
+    //const taxMonthFormated = taxMonth.replaceAll('.', '')
+    var taxaM = taxMonth; //Number(taxMonthFormated.replace(',', '.')) //0.95 // Taxa por mês
     const projectedINSSFormated = projectedINSS.replaceAll('.', '');
     var INSSproject = Number(projectedINSSFormated.replace(',', '.'));
     const otherSourcesFormated = otherSources.replaceAll('.', '');
@@ -140,12 +116,17 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
     var RetireValue = Number(RetireValueForm.replace(',', '.'));
     var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal); //Valor a ser descontado para objetivo de aposentadoria
     var tempoApose = (ExpectLife - retirement) * 12; // meses de aposentadoria 65-90 anos 
-    // console.log(yearsOldNow, retirement, lifeExpect, applyMonth, patrimonyInit, yearsConstruct, retirementeValue, projectedINSS , otherSources, taxYear, taxMonth, 'req.body')
-    // console.log(yearOld, retirement, ExpectLife, ValueMonth, montante, RetireValue,tempoM, tempoApose, INSSproject, otherSourcesFinal, taxaM, taxNumber, 'formats' )
     var totalAmountInit = Number(((tempoM * ValueMonth) + montante).toFixed(2));
+    var idReturnUp = 0;
+    var changeOfContribution = 0;
+    var financialApplications = 0;
+    var financialExists = 0;
     var idade = 0;
     var idadeMilion = 0;
     var tenYears = 0;
+    var spreadsheet = [];
+    var chartsTime = [];
+    var chartsRetiment = [];
     function Montante(montante, taxaM, tempoM) {
         montante = (montante + (montante * (taxaM / 100))); //  * (1 + (taxaM / 100)) ** tempoM
         var txa = taxaM / 100;
@@ -153,10 +134,19 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
         return montante;
     }
     for (var i = 0; i <= tempoM; i++) {
-        montante = montante + ValueMonth;
-        if (i !== 0) {
-            montante = Montante(montante, taxaM, tempoM);
+        if (i === idReturnUp) {
+            if (changeOfContribution > 0) {
+                ValueMonth = changeOfContribution;
+            }
+            if (financialApplications > 0) {
+                montante = montante + financialApplications;
+            }
+            if (financialExists > 0) {
+                montante = montante - financialExists;
+            }
         }
+        montante = Montante(montante, taxaM, tempoM);
+        montante = montante + ValueMonth;
         idade = Number(((i / 12) + yearOld).toFixed(2));
         //  console.log(idade, 'recem')
         if (tenYears === 0) {
@@ -169,8 +159,21 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
                 idadeMilion = Number(idade);
             }
         }
-        console.log(i, idade.toFixed(2), montante, "Juros compostos com acumulado");
+        if (Number.isInteger(idade) && idade === 20 || idade === 26 || idade === 33 || idade === 40 || idade === 47 || idade === 54 || idade === 61 || idade === 68 || idade === 75 || idade === 82 || idade === 90) {
+            chartsTime.push({
+                idade,
+                montante
+            });
+        }
+        // console.log( i, idade.toFixed(2) , montante, "Juros compostos com acumulado")
+        spreadsheet.push({
+            id: i,
+            ValueMonth,
+            montante,
+            idade
+        });
     }
+    //console.log(spreadsheet, 'preenchido')
     var amountRetire = montante;
     var gainAmountInit = amountRetire - totalAmountInit;
     for (var i = 0; i <= tempoApose; i++) {
@@ -181,7 +184,21 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
             // console.log(idade)
             ValueApos = montante;
         }
-        console.log(idade.toFixed(2), montante, "Descontando Aposentadoria");
+        if (Number.isInteger(idade) && idade === 20 || idade === 26 || idade === 33 || idade === 40 || idade === 47 || idade === 54 || idade === 61 || idade === 68 || idade === 75 || idade === 82 || idade === 90) {
+            // console.log(idade, 'idade no if -')
+            // console.log(montante, 'montante no if -')
+            chartsTime.push({
+                idade,
+                montante
+            });
+        }
+        //  console.log( idade.toFixed(2), montante, "Descontando Aposentadoria")
+        spreadsheet.push({
+            id: i,
+            ValueMonth,
+            montante,
+            idade
+        });
     }
     const tax = taxaM / 100;
     const valuetotal = RetireValue / tax;
@@ -197,11 +214,42 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
     const PercentGainTenYears = (tenYears * 100) / (montanteInit === 0 ? 1 : montanteInit);
     // console.log(PercentGainTenYears, 'PercentGainTenYears')
     const PercentGainFees = (gainAmountInit * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentGainFees, 'PercentGainFees');
+    // console.log(PercentGainFees, 'PercentGainFees')
     const PercentGainRetirement = (ValueApos * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentGainRetirement, 'PercentGainRetirement');
+    // console.log(PercentGainRetirement, 'PercentGainRetirement')
     const PercentProjectPatrimony = (montante * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentProjectPatrimony, 'PercentProjectPatrimony');
+    // console.log(PercentProjectPatrimony, 'PercentProjectPatrimony')
+    //console.log(spreadsheet, 'Com dedução da aposentadoria')
+    // const dataSpread = {
+    //   id: userId,
+    //   spread: spreadsheet
+    // }
+    // const spreadRes = await SpreadSheet.findByIdAndUpdate(id, dataSpread, {new:true})
+    // console.log(chartsTime, 'chartTime')
+    const dataChart = {
+        user: userId,
+        chart: chartsTime
+    };
+    const dataRetirement = {
+        user: userId,
+        chartReti: chartsRetiment
+    };
+    const test = await ChartsTime_1.default.find({ id: userId });
+    // console.log(test, 'teste 1 ')
+    if (test.length > 0) {
+        ///Corrigir o Updated
+        // console.log(test[0]._id, test[0].id, dataChart, 'dataChart')
+        await ChartsTime_1.default.findByIdAndUpdate(test[0].id, dataChart, { new: true });
+        // console.log(dataRetirement, 'dataRetirement')
+        // await ChartsTimeRetire.findByIdAndUpdate(id, dataRetirement, {new: true})
+        // console.log("atualizou")
+    }
+    else {
+        // console.log("cadastrou")
+        await ChartsTime_1.default.create(dataChart);
+        // await ChartsTimeRetire.create(dataRetirement)
+    }
+    // console.log(chartsTime, 'chartsTime')
     const data = {
         yearOld, retirement, ExpectLife, ValueMonth,
         montanteInit, RetireValue, tempoM, tempoApose,
@@ -212,124 +260,47 @@ app.post('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 
         PercentProjectPatrimony,
         user: userId
     };
-    const Retirement = yield ProjectLife_1.default.create(data);
+    const Retirement = await ProjectLife_1.default.findByIdAndUpdate(id, data, { new: true });
     // console.log('idadeAtual',yearOld, 'idade aposentado', retirement, 'expectativa', ExpectLife, 'valor por mes', ValueMonth, 'Montante inicial', montanteInit, 'retirado na aposentadoria', RetireValue,'tempo de produçao',tempoM, 'tempo de aposentadoria',tempoApose, 'valor inss', INSSproject, 'outras fontes', otherSourcesFinal, 'taxa mensal', taxaM, 'taxa anual', taxNumber, 'montante final calculo', montante, 'montante no ano de aposentado', ValueApos , 'idade 1 milhão', idadeMilion, 'total guardado sem juros',  totalAmountInit,gainAmountInit, 'montante em 10 anos',tenYears, 'parcela Boa', PortionMin, 'Parcela ruim', PortionNegative, 'Salvar no banco' )  
-    return res.json({ montante, ValueApos, idadeMilion, totalAmountInit, gainAmountInit, tenYears, PortionMin, PortionNegative });
-}));
-app.get('/aposent', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId } = req;
-    // console.log(userId, 'idUser')
-    const response = yield ProjectLife_1.default.find({ user: userId });
-    return res.json({ response });
-}));
-app.put('/aposent/:id', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.params;
-    const { yearsOldNow, retirement, applyMonth, patrimonyInit, yearsConstruct, lifeExpect, retirementeValue, projectedINSS, otherSources, taxYear, taxMonth } = req.body;
-    // console.log(yearsOldNow,retirement, applyMonth, patrimonyInit, yearsConstruct, lifeExpect,retirementeValue, projectedINSS , otherSources, taxYear,taxMonth, 'req.body')
-    const { userId } = req;
-    // console.log(userId, 'user')
-    var yearOld = Number(yearsOldNow);
-    const patrimonyFormated = patrimonyInit.replaceAll('.', '');
-    var montante = Number(patrimonyFormated.replace(',', '.')); // Valor Acumulado Atualmente
-    var montanteInit = montante;
-    const applyMonthFormated = applyMonth.replaceAll('.', '');
-    var ValueMonth = Number(applyMonthFormated.replace(',', '.')); //55.76 //Valor de aporte por mes
-    var taxNumber = Number(taxYear);
-    const taxMonthFormated = taxMonth.replaceAll('.', '');
-    var taxaM = Number(taxMonthFormated.replace(',', '.')); //0.95 // Taxa por mês
-    const projectedINSSFormated = projectedINSS.replaceAll('.', '');
-    var INSSproject = Number(projectedINSSFormated.replace(',', '.'));
-    const otherSourcesFormated = otherSources.replaceAll('.', '');
-    var otherSourcesFinal = Number(otherSourcesFormated.replace(',', '.'));
-    const timeWork = yearsConstruct;
-    var tempoM = timeWork * 12; // Meses de Criação de patrimonio
-    var adicionado = 0;
-    var ValueApos = 0;
-    var ExpectLife = Number(lifeExpect);
-    var RetireValueForm = retirementeValue.replaceAll('.', '');
-    var RetireValue = Number(RetireValueForm.replace(',', '.'));
-    var descontandoValue = Math.abs(RetireValue - INSSproject - otherSourcesFinal); //Valor a ser descontado para objetivo de aposentadoria
-    var tempoApose = (ExpectLife - retirement) * 12; // meses de aposentadoria 65-90 anos 
-    var totalAmountInit = Number(((tempoM * ValueMonth) + montante).toFixed(2));
-    var idade = 0;
-    var idadeMilion = 0;
-    var tenYears = 0;
-    function Montante(montante, taxaM, tempoM) {
-        montante = (montante + (montante * (taxaM / 100))); //  * (1 + (taxaM / 100)) ** tempoM
-        var txa = taxaM / 100;
-        montante = Number(montante.toFixed(2));
-        return montante;
-    }
-    for (var i = 0; i <= tempoM; i++) {
-        montante = montante + ValueMonth;
-        if (i !== 0) {
-            montante = Montante(montante, taxaM, tempoM);
-        }
-        idade = Number(((i / 12) + yearOld).toFixed(2));
-        //  console.log(idade, 'recem')
-        if (tenYears === 0) {
-            if (i === 132) {
-                tenYears = montante;
-            }
-        }
-        if (idadeMilion === 0) {
-            if (montante >= 1000000) {
-                idadeMilion = Number(idade);
-            }
-        }
-        //  console.log( i, idade.toFixed(2) , montante, "Juros compostos com acumulado")
-    }
-    var amountRetire = montante;
-    var gainAmountInit = amountRetire - totalAmountInit;
-    for (var i = 0; i <= tempoApose; i++) {
-        montante = montante - descontandoValue;
-        montante = Montante(montante, taxaM, tempoM);
-        var idade = (i / 12) + 65;
-        if (idade == 65.00) {
-            // console.log(idade)
-            ValueApos = montante;
-        }
-        //  console.log( idade.toFixed(2), montante, "Descontando Aposentadoria")
-    }
-    const tax = taxaM / 100;
-    const valuetotal = RetireValue / tax;
-    // console.log(valuetotal)
-    // console.log(tax, 'tax')
-    const resultCalc = tax / (1 - (1 / ((1 + tax) ** tempoM)));
-    // console.log(resultCalc, 'Correct tax')
-    const correctTop = valuetotal * resultCalc;
-    const PortionMin = Number((correctTop - RetireValue).toFixed(2));
-    // console.log(PortionMin, 'Parcela')
-    const PortionNegative = Number((PortionMin - (PortionMin * 0.0804)).toFixed(2));
-    // console.log(PortionNegative, 'parcela negativa')
-    const PercentGainTenYears = (tenYears * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentGainTenYears, 'PercentGainTenYears');
-    const PercentGainFees = (gainAmountInit * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentGainFees, 'PercentGainFees');
-    const PercentGainRetirement = (ValueApos * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentGainRetirement, 'PercentGainRetirement');
-    const PercentProjectPatrimony = (montante * 100) / (montanteInit === 0 ? 1 : montanteInit);
-    console.log(PercentProjectPatrimony, 'PercentProjectPatrimony');
-    const data = {
-        yearOld, retirement, ExpectLife, ValueMonth,
-        montanteInit, RetireValue, tempoM, tempoApose,
-        INSSproject, otherSourcesFinal, taxaM, taxNumber,
-        montante, ValueApos, idadeMilion, totalAmountInit,
-        gainAmountInit, tenYears, PortionMin, PortionNegative,
-        PercentGainTenYears, PercentGainFees, PercentGainRetirement,
-        PercentProjectPatrimony,
-        user: userId
-    };
-    const Retirement = yield ProjectLife_1.default.findByIdAndUpdate(id, data, { new: true });
-    // console.log('idadeAtual',yearOld, 'idade aposentado', retirement, 'expectativa', ExpectLife, 'valor por mes', ValueMonth, 'Montante inicial', montanteInit, 'retirado na aposentadoria', RetireValue,'tempo de produçao',tempoM, 'tempo de aposentadoria',tempoApose, 'valor inss', INSSproject, 'outras fontes', otherSourcesFinal, 'taxa mensal', taxaM, 'taxa anual', taxNumber, 'montante final calculo', montante, 'montante no ano de aposentado', ValueApos , 'idade 1 milhão', idadeMilion, 'total guardado sem juros',  totalAmountInit,gainAmountInit, 'montante em 10 anos',tenYears, 'parcela Boa', PortionMin, 'Parcela ruim', PortionNegative, 'Salvar no banco' )  
-    return res.json({ montante, ValueApos, idadeMilion, totalAmountInit, gainAmountInit, tenYears, PortionMin, PortionNegative });
-}));
+    const end = new Date();
+    console.log(`Took ${end - started}ms aposent updated`);
+    return res.json({ montante, ValueApos, idadeMilion, totalAmountInit, gainAmountInit, tenYears, PortionMin, PortionNegative, chartsTime });
+});
+app.get('/testando', async (req, res) => {
+    //Teste doido
+    let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
+    let jsondata = await axios_1.default.get(srcURL);
+    console.log(jsondata, 'jsonData');
+    let parsedData = JSON.parse(jsondata).response;
+    console.log(parsedData, 'parsedData');
+    return res.json({});
+    /*
+    * @return Retorna a cotação atual de um título específico do Tesouro Direto.
+    * Fonte: https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm
+    **/
+    // async function TESOURODIRETO(bondName, argumento="r") {
+    //   let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
+    //   let jsondata = await axios.get(srcURL) as string;
+    //   console.log(jsondata, 'jsonData')
+    //   let parsedData = JSON.parse(jsondata).response;
+    //   console.log(parsedData, 'parsedData')
+    //   for(let bond of parsedData.TrsrBdTradgList) {
+    //       let currBondName = bond.TrsrBd.nm;
+    //       if (currBondName.toLowerCase() === bondName.toLowerCase())
+    //           if(argumento == "r")
+    //               return bond.TrsrBd.untrRedVal;
+    //           else
+    //               return bond.TrsrBd.untrInvstmtVal;
+    //   }
+    //   throw new Error("Título não encontrado.");
+    // }
+    // TESOURODIRETO()
+});
 //CRUD ACTIVES B3
-app.post('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/active', async (req, res) => {
     const { buyValue, quantBuy, dateBuy, name, codeName, dateform, type } = req.body;
     const { userId } = req;
-    // console.log(userId, 'user')
-    const ticker = yield axios_1.default.get(`https://brapi.dev/api/quote/${codeName}`);
+    const ticker = await axios_1.default.get(`https://brapi.dev/api/quote/${codeName}`);
     const valueNow = ticker.data.results[0].regularMarketPrice;
     const format = buyValue.replaceAll('.', '');
     const formatedBuyValue = format.replace(',', '.');
@@ -347,23 +318,23 @@ app.post('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0
         valueNow
     };
     // console.log(ActiveBody, 'body')
-    const Active = yield Actives_1.default.create(ActiveBody);
+    const Active = await Actives_1.default.create(ActiveBody);
     return res.json({ Active });
-}));
-app.get('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+app.get('/active', CheckToken_1.default, async (req, res) => {
     const { userId } = req;
-    const response = yield Actives_1.default.find({ user: userId });
-    const TickersAll = yield axios_1.default.get(`https://brapi.dev/api/quote/list`);
+    const response = await Actives_1.default.find({ user: userId });
+    const TickersAll = await axios_1.default.get(`https://brapi.dev/api/quote/list`);
     var CodeName = [];
     const tickers = response.map((ticker) => {
         return ticker.codeName.toLocaleUpperCase();
     });
     // console.log(tickers, 'tickers name')
-    app.delete('/deleteactive/:id', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    app.delete('/deleteactive/:id', CheckToken_1.default, async (req, res) => {
         const { id } = req.params;
-        yield Actives_1.default.findByIdAndDelete(id);
+        await Actives_1.default.findByIdAndDelete(id);
         return res.send();
-    }));
+    });
     const stockUpList = TickersAll.data.stocks.filter(stock => {
         for (var i = 0; i <= tickers.length; i++) {
             if (stock.stock === tickers[i]) {
@@ -385,7 +356,7 @@ app.get('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0,
                 return stock;
             }
         });
-        if (valueFinally[0].change > 0) {
+        if (valueFinally[0].change && valueFinally[0].change > 0) {
             UpDown = true;
         }
         else {
@@ -427,11 +398,10 @@ app.get('/active', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0,
         };
         return Ticker;
     });
-    // console.log(UpdatedStock)
     return res.json({ UpdatedStock });
-}));
-app.get('/sticker', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const TickersAll = yield axios_1.default.get(`https://brapi.dev/api/quote/list`);
+});
+app.get('/sticker', async (req, res) => {
+    const TickersAll = await axios_1.default.get(`https://brapi.dev/api/quote/list`);
     const vale3 = TickersAll.data.stocks.filter(stock => {
         if (stock.stock === 'VALE3') {
             return stock;
@@ -461,9 +431,9 @@ app.get('/sticker', (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         vale3, petr4, itub3, bbdc4, abev3
     ];
     return res.json({ stocksTops });
-}));
+});
 //CRUD TAX PLANNING INIT
-app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, async (req, res) => {
     const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, spendingOnEducation, Alimony, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, BalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
     // console.log(BalanceRefounded, 'post')
     // console.log(FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot,taxTotal, BalanceRefounded ,taxFirst, taxSecond ,NewTaxBase,EducationCalc,PGBLCalc,dependentsCalc, 'na rota')
@@ -482,15 +452,15 @@ app.post('/taxplanning', CheckToken_1.default, TaxCalculate_1.default, (req, res
         EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
     };
     // console.log(taxPlanning, 'verificar ')
-    const TaxPlanCreateResponse = yield TaxModel_1.default.create(taxPlanning);
+    const TaxPlanCreateResponse = await TaxModel_1.default.create(taxPlanning);
     return res.json({ TaxPlanCreateResponse });
-}));
-app.get('/gettaxplans', CheckToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+app.get('/gettaxplans', CheckToken_1.default, async (req, res) => {
     const { userId } = req;
-    const response = yield TaxModel_1.default.find({ user: userId });
+    const response = await TaxModel_1.default.find({ user: userId });
     res.json({ response });
-}));
-app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, async (req, res) => {
     const { id } = req.params;
     const { userId, annualIncomeCorrect, healthCorrect, dependentsCorrect, Alimony, spendingOnEducation, ContributionPGBL, INSS, withholdingTax, FirstAliquot, SecondAliquot, ThirdAliquot, FourAliquot, FiveAliquot, taxTotal, BalanceRefounded, PercentBalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate, EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect } = req;
     // console.log(BalanceRefounded, 'up')
@@ -509,12 +479,12 @@ app.put('/taxplanning/:id', CheckToken_1.default, TaxCalculate_1.default, (req, 
         taxTotal, BalanceRefounded, PercentBalanceRefounded, NewTaxBase, taxFirst, taxSecond, TaxThirdRate, TaxFourRate, TaxFiveRate,
         EducationCalc, PGBLCalc, dependentsCalc, TotalDedution, CorrectAliquot, AliquoteEffect
     };
-    const response = yield TaxModel_1.default.findByIdAndUpdate(id, taxPlanning, { new: true });
+    const response = await TaxModel_1.default.findByIdAndUpdate(id, taxPlanning, { new: true });
     // console.log(response, 'up')
     res.json({ response });
-}));
+});
 //FINANCIAL MANAGEMENT CRUD INIT
-app.get('/statement', CheckToken_1.default, TotalCalculator_1.default, GreetTime_1.GreetTime, Statement_1.default);
+app.get('/statement', CheckToken_1.default, TotalCalculator_1.default, Statement_1.default);
 //Deposit 
 app.post('/deposit', CheckToken_1.default, TotalCalculator_1.default, Deposit_1.default);
 //List Customer
@@ -544,7 +514,7 @@ console.log('1', dbUser, dbPass);
 mongoose_1.default.connect(`mongodb+srv://${dbUser}:${dbPass}@cluster0.s1s1pe2.mongodb.net/?retryWrites=true&w=majority`)
     .then(() => {
     app.listen(port);
-    console.log("Success Conected database");
+    console.log(`Success Conected database on ${port}`);
 }).catch((err) => {
     console.log('2', dbUser, dbPass);
     console.log('Erro especificado a baixo');
