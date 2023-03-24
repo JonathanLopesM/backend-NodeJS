@@ -3,10 +3,14 @@ import Amounts from "../models/Amounts"
 import bcrypt from "bcrypt"
 import jwt,{ Secret } from "jsonwebtoken"
 
+interface IReq {
+  greet: string;
+}
 export default async function LoginUser (req, res ) {
+  const started = new Date() as unknown as number
   const { email, password } = req.body
   // Teste com 0
-  const { TotalFounds, TotalDebits, TotalCredits, greet } = req as any
+  const { greet }:IReq = req 
 
 
   //validations
@@ -22,12 +26,7 @@ export default async function LoginUser (req, res ) {
   if(!user) {
     return res.status(422).json({ msg: 'Usuário não encontrado, verifique Email/Senha'})
   }
-
-
-  //check Password match
-
   const checkPassword = await bcrypt.compare(password, user.password)
-
   if(!checkPassword) {
     return res.status(422).json({ message: 'Senha Inválida' })
   }
@@ -42,7 +41,6 @@ export default async function LoginUser (req, res ) {
   }
   //console.log(userReturn)
   
-  
   try{
 
     const secret = process.env.SECRET as Secret
@@ -51,7 +49,10 @@ export default async function LoginUser (req, res ) {
     },
     secret,
     )
-    res.status(200).json({msg: 'Autenticação com sucesso', userReturn, token, TotalFounds, TotalDebits, TotalCredits, greet })
+
+    const end = new Date() as unknown as number
+    console.log(`Took ${end - started}ms`)
+    res.status(200).json({msg: 'Autenticação com sucesso', userReturn, token, greet })
   } catch(error) {
     res.status(500).json({
       msg: 'Aconteceu um erro no servidor, tente novamente mais tarde!'

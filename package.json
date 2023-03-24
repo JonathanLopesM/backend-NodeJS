@@ -11,7 +11,7 @@
     "babel": "babel src --extensions \".js,.ts\" --out-dir dist --copy-files  "
   },
   "keywords": [],
-  "author": "",
+  "author": "Jonathan Lopes Machado",
   "license": "ISC",
   "dependencies": {
     "@types/nodemailer": "^6.4.6",
@@ -25,8 +25,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.6.7",
     "multer": "^1.4.5-lts.1",
-    "nodemailer": "^6.8.0",
-    "request": "^2.88.2"
+    "nodemailer": "^6.8.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.19.3",

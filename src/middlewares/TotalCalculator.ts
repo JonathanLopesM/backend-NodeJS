@@ -5,42 +5,51 @@ async function TotalCalculator(req, res, next) {
   // console.log(userId)
 
   //Array to Wallet
-  
+
   const customers = await Amounts.find({user: userId})
    // Get Month atual and Year
+
    const date = new Date()
    const monthNow = date.getMonth()+1
    const yearNow = date.getFullYear()
 
 
   //CALCULO DE DEBITOS MONTH AND YEAR
+
   const customersDebit = customers.filter((obj:any) => { 
     const dateFilter = obj.dateTo.split('/') 
       if(monthNow == dateFilter[1] && yearNow == dateFilter[2]){
         return obj.type === 'debit'
       }
     })
+
     var valueDebits = customersDebit.map(customer => {
       return customer.amount
     })
+
     var TotalDebits = 0
     for(var i = 0; i < valueDebits.length; i++){
       TotalDebits += valueDebits[i]
     }
+
     req.TotalDebits = Number(TotalDebits.toFixed(2))
 
-    //Calculo para o total de -DEBITOS
+
     const customersDebitAll = customers.filter((obj) => { 
       return obj.type === 'debit'
     })
+
     var valueDebitsAll = customersDebitAll.map(customer => {
       return customer.amount
     })
+
+
     var TotalDebitsAll = 0
     for(var i = 0; i < valueDebitsAll.length; i++){
       TotalDebitsAll += valueDebitsAll[i]
     }
     req.TotalDebitsAll = Number(TotalDebitsAll.toFixed(2))
+
 
 
     //Filtro de Mes
@@ -49,20 +58,30 @@ async function TotalCalculator(req, res, next) {
       
       return month[1]
     })
+
+
     var months = monthsTypes.filter((index, i) => {
       return monthsTypes.indexOf(index) === i
     })
+    // console.log(months.length ,'customersDebit - months')
+
     var TotalToMonth = 0
+    var credits = []
     for(i=0 ; i < months.length ; i++){
       
-      const credits = customers.filter((obj:any) => {
-        const dateFilter = obj.dateTo.split('/')
+      var Totalcredits = customers.filter((obj:any) => {
+        let dateFilter = obj.dateTo.split('/')
+        // console.log(months[i], Number(dateFilter[1]), 'months dateFilter')
+
         if(months[i] == dateFilter[1]){
+          // console.log(months , months[i], Number(dateFilter[1]), 'dentro do if ')
           return obj.type === 'credit'
         }
-        
+        // console.log('dentro do for{} credits')
       })
+      credits.push(Totalcredits)
         //Criar a Soma Total de cada
+
         const CreditValue = credits.map(credit => (
           credit.amount
         ))
@@ -72,7 +91,7 @@ async function TotalCalculator(req, res, next) {
         }
     }
   
-   
+
     // Filter to Month and Year Today
     const customersCredit = customers.filter((obj:any) => { 
     const dateFilter = obj.dateTo.split('/') 
@@ -123,6 +142,8 @@ async function TotalCalculator(req, res, next) {
 
   req.PercentCredits = Number(PercentCredits.toFixed(2))
   
+  // console.log('total Calculator exact finaly')
+
   return next()
 }
 
