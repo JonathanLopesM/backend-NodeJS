@@ -23,8 +23,8 @@ async function Deposit(req, res) {
     var ValueTo = value.replace(".", "");
     var ValueTo2 = ValueTo.replace(",", ".");
     var amount = Number.parseFloat(ValueTo2).toFixed(2);
-    const dateform = new Date(date);
-    const dateTo = (((dateform.getDate() + 1)) + "/" + ((dateform.getMonth() + 1)) + "/" + dateform.getFullYear()).toString();
+    const day = date.split("-");
+    const dateTo = (day[2] + "/" + day[1] + "/" + day[0]).toString();
     const statement = {
         user: userId,
         description,
