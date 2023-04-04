@@ -7,8 +7,21 @@ import {storage, limits} from './MulterConfig'
 import multer from 'multer'
 import axios from 'axios'
 // import { GoogleSpreadsheet } from 'google-spreadsheet'
+import dadosFixedJson from '../dadosFixed.json'
+
+
+import TaxModel from './models/TaxModel'
+import Actives from './models/Actives'
+import FixedIncome from './models/FixedIncome'
+import ProjectLife from './models/ProjectLife'
+import ChartsTime from './models/ChartsTime'
+import DirectTreasureModel from './models/DirectTreasureModel'
 
 import checkToken from './middlewares/CheckToken'
+import TotalCalculator from './middlewares/TotalCalculator'
+import PatrimonyCalculate from './middlewares/PatrimonyCalculate'
+import { GreetTime } from './middlewares/GreetTime'
+import TaxCalculate from './middlewares/TaxCalculate'
 
 import LoginUser from './controllers/LoginUser'
 import PrivateRoute from './controllers/PrivateRoute'
@@ -16,11 +29,6 @@ import RegisterUser from './controllers/RegisterUser'
 import RecoverPassword from './controllers/RecoverPassword'
 import ResetPass from './controllers/ResetPass'
 import ResetPassword from './controllers/ResetPassword'
-
-import TotalCalculator from './middlewares/TotalCalculator'
-import PatrimonyCalculate from './middlewares/PatrimonyCalculate'
-import { GreetTime } from './middlewares/GreetTime'
-
 import Statement from './controllers/Statement'
 import Deposit from './controllers/Deposit'
 import UpdatedWallet from './controllers/UpdatedWallet'
@@ -28,27 +36,18 @@ import DeleteWallet from './controllers/DeleteWallet'
 import CreateBalance from './controllers/CreateBalance'
 import ViewBalance from './controllers/ViewBalance'
 import DeleteBalance from './controllers/DeleteBalance'
-
-import TaxModel from './models/TaxModel'
-import TaxCalculate from './middlewares/TaxCalculate'
-import Actives from './models/Actives'
-
-import ProjectLife from './models/ProjectLife'
 import { CalcAmount } from './controllers/CalcAmount'
-import SpreadSheet from './models/SpreadSheet'
-import Amounts from './models/Amounts'
- import ChartsTime from './models/ChartsTime'
-import ChartsTimeRetire from './models/ChartsTimeRetire'
 import { CreateAposent } from './controllers/CreateAposent'
+import { FixedIncomeFunction } from './controllers/FixedIncomeFunction'
+import { DirectTreasure } from './controllers/DirectTreasure'
+import { Savings } from './controllers/Savings'
+import SavingsModel from './models/SavingsModel'
+import { google } from 'googleapis'
 
 const upload = multer({ storage, limits })
-
-const port = process.env.PORT || 3333 ;
-
+const port = process.env.PORT || 3334 ;
 const app = express()
-
 app.use(cors())
-
 
 app.use(express.json())
 app.set("view engine", "ejs")
@@ -71,6 +70,101 @@ app.post('/uploadfdna', upload.single('file'), (req, res) => {
 
 // Private Route
 app.get('/user/:id', checkToken, TotalCalculator, PrivateRoute )
+
+app.get("/metadata", async (req, res) => {
+
+  const { googleSheets, auth, spreadsheetId } = await getAuthSheets()
+
+  const metadata = await googleSheets.spreadsheets.get({
+      auth,
+      spreadsheetId
+  })
+
+  res.send(metadata.data)
+})
+app.get('/getbrasiltax', async (req, res) => {
+  const { googleSheets, auth, spreadsheetId } = await getAuthSheets()
+
+  const JurosBrasil = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AW3:AX",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const data = JurosBrasil.data
+
+  res.status(200).json({ data })
+})
+
+app.get('/getRows', async (req, res) => {
+  const { googleSheets, auth, spreadsheetId } = await getAuthSheets()
+
+  const getPrinciple = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AZ3:BB",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const getETFs = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AR2:AT",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const getREITs = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AJ2:AL",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const getSTOCKs = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AN2:AP",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const getMOEDAs = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!S2:U",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+
+  const getIndices = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!Y2:AA",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+  const getFutures = await googleSheets.spreadsheets.values.get({
+    auth,
+    spreadsheetId,
+    range: "Bancos!AE2:AG",
+    valueRenderOption: "UNFORMATTED_VALUE"
+
+  })
+
+  const data = {
+    Principle: getPrinciple.data.values,
+    ETFs: getETFs.data.values,
+    REITs: getREITs.data.values, 
+    Stocks: getSTOCKs.data.values, 
+    Moedas: getMOEDAs.data.values, 
+    Indices: getIndices.data.values,
+    Futures: getFutures.data.values
+
+  }
+
+
+  res.status(200).json({ data })
+})
 
 //API ALPHA
 app.get('/alpha', async (req, res) => {
@@ -326,48 +420,125 @@ app.put('/aposent/:id', checkToken, async (req, res) => {
   return res.json({montante, ValueApos , idadeMilion, totalAmountInit,gainAmountInit, tenYears, PortionMin, PortionNegative, chartsTime })
 })
 
-app.get('/testando', async (req, res) => {
-//Teste doido
-  let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
-  let jsondata = await axios.get(srcURL) as string;
-  console.log(jsondata, 'jsonData')
-  let parsedData = JSON.parse(jsondata).response;
-  console.log(parsedData, 'parsedData')
+app.post('/savings', checkToken, Savings)
 
-  return res.json({})
-/*
-* @return Retorna a cotação atual de um título específico do Tesouro Direto. 
-* Fonte: https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm
-**/
-// async function TESOURODIRETO(bondName, argumento="r") {
-//   let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
-//   let jsondata = await axios.get(srcURL) as string;
+app.get('/savings', checkToken, async (req, res)=>{
+  const { userId } = req as any
+  // console.log(userId, 'id no savings get')
+
+  const response = await SavingsModel.find({user: userId})
+
+  return res.status(200).json({ response })
+})
+
+app.delete('/savings/:id', checkToken, async (req, res )=> {
+  const {id} = req.params
+  // console.log(id, 'id delete')
+  await DirectTreasureModel.findByIdAndDelete(id)
+
+  return res.send()
+})
+
+
+app.post('/direct-treasure', checkToken, DirectTreasure)
+
+app.get('/direct-treasure', checkToken, async (req, res)=>{
+  const { userId } = req as any
+  // console.log(userId, 'id no direct-Treasure get')
+
+  const response = await DirectTreasureModel.find({user: userId})
+
+  return res.status(200).json({ response })
+})
+app.delete('/direct-treasure/:id', checkToken, async (req, res )=> {
+  const {id} = req.params
+  // console.log(id, 'id delete')
+  await DirectTreasureModel.findByIdAndDelete(id)
+
+  return res.send()
+})
+
+
+app.post('/fixed-income', checkToken, FixedIncomeFunction)
+
+app.get('/fixed-income', checkToken, async (req, res)=>{
+  const { userId } = req as any
+  // console.log(userId, 'id no fixed-Income get')
+
+  const response = await FixedIncome.find({user: userId})
+
+  return res.status(200).json({ response })
+})
+
+app.delete('/fixed-income/:id', checkToken, async (req, res )=> {
+  const {id} = req.params
+  // console.log(id, 'id delete')
+  await FixedIncome.findByIdAndDelete(id)
+
+  return res.send()
+})
+
+// app.get('/testando/:bondName', async (req, res) => {
+// //Teste doido
+//   // let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
+//   let jsondata =dadosFixedJson.toString() //await axios.get(srcURL) as string;
 //   console.log(jsondata, 'jsonData')
 //   let parsedData = JSON.parse(jsondata).response;
 //   console.log(parsedData, 'parsedData')
 
-//   for(let bond of parsedData.TrsrBdTradgList) {
-//       let currBondName = bond.TrsrBd.nm;
-//       if (currBondName.toLowerCase() === bondName.toLowerCase())
-//           if(argumento == "r")
-//               return bond.TrsrBd.untrRedVal;
-//           else
-//               return bond.TrsrBd.untrInvstmtVal;
-//   }
-//   throw new Error("Título não encontrado.");
-// }
-// TESOURODIRETO()
-})
+//       console.log(parsedData, 'parsedData')
+    
+//       for(let bond of parsedData.TrsrBdTradgList) {
+//           let currBondName = bond.TrsrBd.nm;
+//           if (currBondName.toLowerCase() === bondName.toLowerCase())
+//               if(argumento == "r")
+//                   return bond.TrsrBd.untrRedVal;
+//               else
+//                   return bond.TrsrBd.untrInvstmtVal;
+//       }
+//       throw new Error("Título não encontrado.");
+    
+//   // console.log(response, 'json ')
+
+//   return res.json({})
+// /*
+// * @return Retorna a cotação atual de um título específico do Tesouro Direto. 
+// * Fonte: https://www.tesourodireto.com.br/titulos/precos-e-taxas.htm
+// **/
+// // async function TESOURODIRETO(bondName, argumento="r") {
+// //   let srcURL = "https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json";
+// //   let jsondata = await axios.get(srcURL) as string;
+// //   console.log(jsondata, 'jsonData')
+// //   let parsedData = JSON.parse(jsondata).response;
+// //   console.log(parsedData, 'parsedData')
+
+// //   for(let bond of parsedData.TrsrBdTradgList) {
+// //       let currBondName = bond.TrsrBd.nm;
+// //       if (currBondName.toLowerCase() === bondName.toLowerCase())
+// //           if(argumento == "r")
+// //               return bond.TrsrBd.untrRedVal;
+// //           else
+// //               return bond.TrsrBd.untrInvstmtVal;
+// //   }
+// //   throw new Error("Título não encontrado.");
+// // }
+// // TESOURODIRETO()
+// })
 
 //CRUD ACTIVES B3
-app.post('/active', async (req, res) => {
+
+app.post('/active', checkToken, async (req, res) => {
   const { buyValue, quantBuy, dateBuy,
     name, codeName,
     dateform, type 
   } = req.body as any
   const {userId} = req as any
+  // console.log(userId, 'userId')
+  // console.log(codeName, 'codename')
   const ticker = await axios.get(`https://brapi.dev/api/quote/${codeName}`)
+  // console.log(ticker, 'ticker')
   const valueNow = ticker.data.results[0].regularMarketPrice
+  // console.log(valueNow, 'valueNow')
 
   const format =  buyValue.replaceAll('.', '')
   const formatedBuyValue = format.replace(',', '.')
@@ -384,40 +555,38 @@ app.post('/active', async (req, res) => {
     dateform, type,
     valueNow
   }
-  // console.log(ActiveBody, 'body')
+  //console.log(ActiveBody, 'body buy new')
   const Active = await Actives.create(ActiveBody)
 
   return res.json({ Active })
 })
 
-app.get('/active', checkToken,async (req, res) => {
-  const { userId } = req as any
 
+app.get('/active', checkToken, async (req, res) => {
+  const { userId } = req as any
+  // console.log(userId, 'userId')
   const response = await Actives.find({user: userId})
 
+  // console.log(response, 'response do getActive')
   const TickersAll = await axios.get(`https://brapi.dev/api/quote/list`)
-
-  var CodeName = [] as any
+  
   const tickers = response.map((ticker) => {
     return ticker.codeName.toLocaleUpperCase()
   })
-  // console.log(tickers, 'tickers name')
-  app.delete('/deleteactive/:id', checkToken, async (req, res )=> {
-    const {id} = req.params
-
-    await Actives.findByIdAndDelete(id)
-
-    return res.send()
-  })
-
-
-  const stockUpList = TickersAll.data.stocks.filter(stock => {
-    for(var i=0; i <= tickers.length ; i++){
-      if (stock.stock === tickers[i]) {
-        return  stock
+  // console.log(tickers[0], tickers.length-1, 'tickers name')
+  // console.log(TickersAll.data.stocks, 'tickersAll')
+  var stockUpList = TickersAll.data.stocks.filter(stock => {
+    // console.log(stock, 'stock dentro')
+    for(var array = 0; array < tickers.length ; array++){
+  //  console.log(tickers[array], 'teste')
+  //  console.log(stock.stock, 'stock.stock')
+      if (tickers[array] == stock.stock ) {
+        // console.log(stock.stock, tickers[array], 'stock dentro')
+        return stock
       }
     }
   })
+
   // console.log(stockUpList, 'stockList')
 
   const UpdatedStock = response.map(ticker => {
@@ -429,60 +598,80 @@ app.get('/active', checkToken,async (req, res) => {
     var totalVariation = 0
     var percentTotalVariation = 0
     var valueNow= 0
+    var logo = ''
+    var percent = ''
+    var sector = ''
 
     const valueFinally = stockUpList.filter(stock => {
+      // console.log(stock.stock, ticker.codeName.toLocaleUpperCase() , 'teste dentro do filter')
       if(stock.stock === ticker.codeName.toLocaleUpperCase()){
         return stock
       }
     })
-    if(valueFinally[0].change && valueFinally[0].change > 0){
-      UpDown= true
-    }else {
-      UpDown = false
-    }
-    amountInit = ticker.buyValue * ticker.quantBuy
-    amountTicker = Number((valueFinally[0].close * ticker.quantBuy).toFixed(2))
-    // console.log(valueFinally[0])
+    // console.log(valueFinally, 'valueFinalyy')
+    if(valueFinally.length > 0){
+      if(valueFinally[0].change && valueFinally[0].change > 0){
+        UpDown= true
+      }else {
+        UpDown = false
+      }
+      amountInit = ticker.buyValue * ticker.quantBuy
+      amountTicker = Number((valueFinally[0].close * ticker.quantBuy).toFixed(2))
+      // console.log(valueFinally[0], 'value finally [0]')
+  
+      if(valueFinally[0].change > 0 ){
+        currentVariation = Number(((amountTicker * (Math.abs(valueFinally[0].change))) / 100+(Math.abs(valueFinally[0].change))).toFixed(2))
+      } else {
+        currentVariation = -Number(((amountTicker * (Math.abs(valueFinally[0].change))) / 100+(Math.abs(valueFinally[0].change))).toFixed(2))
+      }
 
-    if(valueFinally[0].change > 0 ){
-      currentVariation = Number(((amountTicker * (Math.abs(valueFinally[0].change))) / 100+(Math.abs(valueFinally[0].change))).toFixed(2))
-    } else {
-      currentVariation = -Number(((amountTicker * (Math.abs(valueFinally[0].change))) / 100+(Math.abs(valueFinally[0].change))).toFixed(2))
+      if(amountInit > amountTicker){
+        totalVariation = Number((amountTicker - amountInit).toFixed(2))
+        percentTotalVariation= -Number(((totalVariation * 100)/ amountInit).toFixed(2))  
+      }else if(amountInit < amountTicker) {
+        totalVariation = Number((amountTicker - amountInit).toFixed(2))
+        percentTotalVariation= Number(((totalVariation * 100)/ amountInit).toFixed(2))
+      }
+      
+      valueNow = Number((valueFinally[0].close).toFixed(2))
+
+      logo =valueFinally[0].logo
+      percent =valueFinally[0].change
+      sector =valueFinally[0].sector
     }
 
 
-    if(amountInit > amountTicker){
-      totalVariation = Number((amountTicker - amountInit).toFixed(2))
-      percentTotalVariation= -Number(((totalVariation * 100)/ amountInit).toFixed(2))  
-    }else if(amountInit < amountTicker) {
-      totalVariation = Number((amountTicker - amountInit).toFixed(2))
-      percentTotalVariation= Number(((totalVariation * 100)/ amountInit).toFixed(2))
-    }
     
-  valueNow = Number((valueFinally[0].close).toFixed(2))
 
   const Ticker = {
     id: ticker.id,
-    logo: valueFinally[0].logo,
+    logo,
     codeName: ticker.codeName.toLocaleUpperCase(),
     buyValue: ticker.buyValue,
     valueNow, // Valor Atual
     buyQuant: ticker.quantBuy,
     UpDown,
-    percent: valueFinally[0].change,
+    percent,
     currentVariation,
     amountInit,
     amountTicker,
     totalVariation,
     percentTotalVariation,
-    sector: valueFinally[0].sector,
+    sector,
     
   }
   return Ticker
   })
- 
+//  console.log(UpdatedStock, 'UpdatedStock')
   return res.json({UpdatedStock})
 
+})
+app.delete('/deleteactive/:id', checkToken, async (req, res )=> {
+  const {id} = req.params
+
+  await Actives.findByIdAndDelete(id)
+
+  return res.send()
 })
 
 app.get('/sticker', async ( req, res) => {
@@ -627,6 +816,29 @@ app.get('/reset-password/:id/:token', ResetPassword)
 //Reset Create
 app.post('/reset-password/:id/:token', ResetPass)
 
+//credential google
+async function getAuthSheets(){
+  const auth = new google.auth.GoogleAuth({
+    keyFile: "credentials.json",
+    scopes: "https://www.googleapis.com/auth/spreadsheets"
+  })
+
+  const client  = await auth.getClient()
+
+  const googleSheets = google.sheets({
+    version: 'v4',
+    auth: client
+  })
+
+  const spreadsheetId = "1XFfFn-bvLbgF1xTWffhVeXnVGWiRkmeEFst1T0A3Jq8"
+
+  return {
+    auth,
+    client,
+    googleSheets,
+    spreadsheetId
+  }
+}
 
 
 // db credentials
