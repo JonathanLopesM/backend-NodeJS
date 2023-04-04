@@ -42,7 +42,7 @@ const Savings_1 = require("./controllers/Savings");
 const SavingsModel_1 = __importDefault(require("./models/SavingsModel"));
 const googleapis_1 = require("googleapis");
 const upload = (0, multer_1.default)({ storage: MulterConfig_1.storage, limits: MulterConfig_1.limits });
-const port = process.env.PORT || 3334;
+const port = process.env.PORT || 3333;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());

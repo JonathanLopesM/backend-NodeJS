@@ -45,7 +45,7 @@ import SavingsModel from './models/SavingsModel'
 import { google } from 'googleapis'
 
 const upload = multer({ storage, limits })
-const port = process.env.PORT || 3334 ;
+const port = process.env.PORT || 3333 ;
 const app = express()
 app.use(cors())
 
