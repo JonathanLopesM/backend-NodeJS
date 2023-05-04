@@ -482,7 +482,9 @@ app.post('/direct-treasure', checkToken, DirectTreasure)
 app.get('/direct-treasure', checkToken, async (req, res)=>{
   const { userId } = req as any
   // console.log(userId, 'id no direct-Treasure get')
-  const data = dadosFixedJson.response.TrsrBdTradgList
+  const dadosTreasure = await axios.get('https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json') as any
+
+  const data = dadosTreasure.response.TrsrBdTradgList
   const response = await DirectTreasureModel.find({user: userId})
   // console.log(response, 'response do direct treasure')
   // console.log(data[0].TrsrBd.nm, 'data do tesouro ')
@@ -547,7 +549,9 @@ app.delete('/fixed-income/:id', checkToken, async (req, res )=> {
 })
 
 app.get('/dadostesouro', async (req, res)=> {
-  const data = dadosFixedJson.response.TrsrBdTradgList
+  const dadosTreasure = await axios.get('https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json') as any
+
+  const data = dadosTreasure.response.TrsrBdTradgList
   // console.log(data, 'dados do tesouro diretor no back')
 
   res.status(200).json({data})

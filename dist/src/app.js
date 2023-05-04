@@ -10,8 +10,6 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const MulterConfig_1 = require("./MulterConfig");
 const multer_1 = __importDefault(require("multer"));
 const axios_1 = __importDefault(require("axios"));
-// import { GoogleSpreadsheet } from 'google-spreadsheet'
-const dadosFixed_json_1 = __importDefault(require("../dadosFixed.json"));
 const TaxModel_1 = __importDefault(require("./models/TaxModel"));
 const Actives_1 = __importDefault(require("./models/Actives"));
 const FixedIncome_1 = __importDefault(require("./models/FixedIncome"));
@@ -400,7 +398,8 @@ app.post('/direct-treasure', CheckToken_1.default, DirectTreasure_1.DirectTreasu
 app.get('/direct-treasure', CheckToken_1.default, async (req, res) => {
     const { userId } = req;
     // console.log(userId, 'id no direct-Treasure get')
-    const data = dadosFixed_json_1.default.response.TrsrBdTradgList;
+    const dadosTreasure = await axios_1.default.get('https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json');
+    const data = dadosTreasure.response.TrsrBdTradgList;
     const response = await DirectTreasureModel_1.default.find({ user: userId });
     // console.log(response, 'response do direct treasure')
     // console.log(data[0].TrsrBd.nm, 'data do tesouro ')
@@ -451,7 +450,8 @@ app.delete('/fixed-income/:id', CheckToken_1.default, async (req, res) => {
     return res.send();
 });
 app.get('/dadostesouro', async (req, res) => {
-    const data = dadosFixed_json_1.default.response.TrsrBdTradgList;
+    const dadosTreasure = await axios_1.default.get('https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json');
+    const data = dadosTreasure.response.TrsrBdTradgList;
     // console.log(data, 'dados do tesouro diretor no back')
     res.status(200).json({ data });
 });
