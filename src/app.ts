@@ -552,7 +552,7 @@ app.get('/dadostesouro', async (req, res)=> {
   const dadosTreasure = await axios.get('https://www.tesourodireto.com.br/json/br/com/b3/tesourodireto/service/api/treasurybondsinfo.json') as any
 
   const data = dadosTreasure.response.TrsrBdTradgList
-  // console.log(data, 'dados do tesouro diretor no back')
+  console.log(data, 'dados do tesouro diretor no back')
 
   res.status(200).json({data})
 })
