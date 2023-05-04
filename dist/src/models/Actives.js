@@ -26,11 +26,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const activeSchema = new mongoose_1.Schema({
     buyValue: { type: mongoose_1.Schema.Types.Number, require: true },
-    quantBuy: { type: mongoose_1.Schema.Types.Number, require: true },
+    amountBuy: { type: mongoose_1.Schema.Types.Number, require: true },
     dateBuy: { type: String, require: true },
     todayValue: { type: mongoose_1.Schema.Types.Number, require: true },
-    name: { type: String, require: true },
     codeName: { type: String },
+    category: { type: String },
     dateform: { type: String },
     dateTo: { type: String, default: Date.now, require: true },
     user: {
@@ -38,6 +38,5 @@ const activeSchema = new mongoose_1.Schema({
         ref: 'Users',
         require: true
     },
-    type: String
 });
 exports.default = mongoose_1.default.model('Actives', activeSchema, 'actives');

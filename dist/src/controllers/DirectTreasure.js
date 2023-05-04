@@ -7,14 +7,21 @@ exports.DirectTreasure = void 0;
 const DirectTreasureModel_1 = __importDefault(require("../models/DirectTreasureModel"));
 const DirectTreasure = async (req, res) => {
     const { userId } = req;
-    console.log(userId, 'userId directTreasure');
+    // console.log(userId, 'userId directTreasure')
     const { buyValue, amount, dateBuy, dateSell, codeName, type } = req.body;
     const buyValue3 = buyValue.replaceAll('.', '');
-    console.log(buyValue3, 'buyValue3 directTreasure');
     const buyValue2 = Number(buyValue3.replace(',', '.'));
-    console.log(buyValue2, 'buyValue2');
+    console.log(amount, 'amount do post');
+    let amountNum = 0;
+    if (amount === Number) {
+        amountNum = Number(amount.replace(',', '.'));
+    }
+    else {
+        amountNum = amount.replaceAll('.', '');
+        amountNum = Number(amountNum.replace(',', '.'));
+    }
     const data = {
-        buyValue2, amount, dateBuy,
+        buyValue2, amountNum, dateBuy,
         dateSell, codeName, type,
         user: userId
     };

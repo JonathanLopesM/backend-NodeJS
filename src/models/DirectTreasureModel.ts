@@ -2,7 +2,7 @@ import mongoose, { Schema, SchemaType } from "mongoose";
 
 interface IDirectTreasure {
   buyValue2: number;
-  amount: number;
+  amountNum: number;
   dateBuy: string;
   dateSell: string;
   codeName:string;
@@ -11,7 +11,7 @@ interface IDirectTreasure {
 }
 const DirectTreasureSchema = new Schema({
   buyValue2: {type: Schema.Types.Number, require:true},
-  amount: {type: Schema.Types.Number, require:true},
+  amountNum: {type: Schema.Types.Number, require:true},
   dateBuy : {type: String, require:true},
   dateSell:{type:String},
   codeName: { type:String },

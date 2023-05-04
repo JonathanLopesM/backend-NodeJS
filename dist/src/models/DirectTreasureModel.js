@@ -26,7 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const DirectTreasureSchema = new mongoose_1.Schema({
     buyValue2: { type: mongoose_1.Schema.Types.Number, require: true },
-    amount: { type: mongoose_1.Schema.Types.Number, require: true },
+    amountNum: { type: mongoose_1.Schema.Types.Number, require: true },
     dateBuy: { type: String, require: true },
     dateSell: { type: String },
     codeName: { type: String },

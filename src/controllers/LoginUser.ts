@@ -30,6 +30,9 @@ export default async function LoginUser (req, res ) {
   if(!checkPassword) {
     return res.status(422).json({ message: 'Senha Inválida' })
   }
+  if(user.active === 0 ){
+    return res.status(422).json({ message: 'Tempo de desgustação expirado, entrar em contato com Suporte.' })
+  }
   const UserName = user.name
   const Name = UserName[0].toUpperCase() + UserName.substring(1)
 

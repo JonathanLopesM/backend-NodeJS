@@ -24,26 +24,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const userSchema = new mongoose_1.Schema({
-    name: { type: String },
-    email: { type: String },
-    password: String,
-    passwordResetToken: {
-        type: String,
-        select: false
-    },
-    passwordResetExpires: {
-        type: Date,
-        select: false
-    },
-    active: { type: Number },
-    statement: [
-        {
-            description: String,
-            amount: Number,
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: "Amounts"
-        }
-    ]
+const stockModelSchema = new mongoose_1.Schema({
+    buyValue: { type: mongoose_1.Schema.Types.Number, require: true },
+    amountBuy: { type: mongoose_1.Schema.Types.Number, require: true },
+    dateBuy: { type: String, require: true },
+    codeName: { type: String },
+    category: { type: String },
+    type: { type: String },
+    priceWhenBuy: { type: mongoose_1.Schema.Types.Number, require: true },
+    percentWhenBuy: { type: mongoose_1.Schema.Types.Number, require: true },
+    user: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Users',
+        require: true
+    }
 });
-exports.default = mongoose_1.default.model('Users', userSchema, 'users');
+exports.default = mongoose_1.default.model('StockModel', stockModelSchema, 'stockmodel');

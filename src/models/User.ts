@@ -4,6 +4,7 @@ interface IUser {
   name:string;
   email:string;
   password:string;
+  active:number;
   statement: Array<Object>;
 }
 const userSchema = new Schema({
@@ -18,6 +19,7 @@ const userSchema = new Schema({
     type: Date,
     select: false
   },
+  active: {type: Number},
   statement: [
     {
       description: String,
